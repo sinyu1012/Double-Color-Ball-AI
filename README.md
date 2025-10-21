@@ -169,6 +169,28 @@ python3 fetch_lottery_history.py
 
 本网站展示的 AI 预测数据仅供参考和研究使用，不构成任何购彩建议。彩票开奖结果具有随机性，任何预测都无法保证中奖。请理性购彩，量力而行。
 
+## 🌐 部署到 Vercel
+
+本项目已配置好 Vercel 部署，详细步骤请查看 [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### 快速部署
+
+1. 安装 Vercel CLI: `npm install -g vercel`
+2. 登录: `vercel login`
+3. 部署: `vercel`
+
+**不会有跨域问题！** Vercel 提供标准的 HTTP 服务，所有资源都从同一域名加载。
+
+### 特性
+
+- ✅ 免费部署
+- ✅ 自动 HTTPS
+- ✅ 全球 CDN 加速
+- ✅ 自动部署（连接 GitHub）
+- ✅ 支持自定义域名
+
+详细说明: [DEPLOYMENT.md](./DEPLOYMENT.md)
+
 ## 📧 反馈与支持
 
 如有问题或建议，欢迎提交 Issue 或 Pull Request。
