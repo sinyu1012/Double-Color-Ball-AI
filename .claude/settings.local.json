@@ -4,7 +4,8 @@
       "Read(//Users/sinyu/Downloads/25-10/AI/**)",
       "Bash(chmod +x /Users/sinyu/Documents/StudioProjects/Double-Color-Ball-AI/start_server.sh)",
       "Bash(python3 -m http.server 8000)",
-      "Bash(chmod +x /Users/sinyu/Documents/StudioProjects/Double-Color-Ball-AI/deploy.sh)"
+      "Bash(chmod +x /Users/sinyu/Documents/StudioProjects/Double-Color-Ball-AI/deploy.sh)",
+      "Bash(cat .github/workflows/update-lottery-data.yml)"
     ],
     "deny": [],
     "ask": []

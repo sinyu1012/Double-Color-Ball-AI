@@ -41,7 +41,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add data/lottery_history.json fetch_history/lottery_data.json fetch_history/lottery_data_backup_*.json
+          git add data/lottery_history.json fetch_history/lottery_data.json
           git commit -m "chore: auto-update lottery data $(date +'%Y-%m-%d %H:%M:%S')"
           git push
 
