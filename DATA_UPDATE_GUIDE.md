@@ -25,7 +25,27 @@
 
 ### 步骤 1: 更新历史开奖数据
 
-#### 方法一：使用爬虫脚本（推荐）
+#### 方法一：GitHub Actions 自动更新（推荐）⭐
+
+项目已配置 GitHub Actions 自动化工作流，**无需手动操作**：
+
+- ⏰ **自动触发**: 每天北京时间 22:00 自动运行
+- 🤖 **自动抓取**: 从 500 彩票网获取最新数据
+- 📦 **自动提交**: 检测到新数据时自动提交到仓库
+- 🚀 **自动部署**: Vercel 监听仓库变更自动重新部署
+
+**手动触发**（如需立即更新）：
+1. 访问 GitHub 仓库
+2. 进入 **Actions** 标签页
+3. 选择 **Update Lottery Data** 工作流
+4. 点击 **Run workflow** 按钮
+
+**查看运行日志**：
+- Actions 页面可查看每次自动更新的详细日志
+- 成功时显示 "✅ Lottery data updated successfully"
+- 无新数据时显示 "ℹ️ No new lottery data available"
+
+#### 方法二：本地使用爬虫脚本
 
 ```bash
 cd fetch_history
@@ -39,7 +59,7 @@ python3 fetch_lottery_history.py
 - ✅ 保存到 `lottery_data.json`
 - ✅ **自动同步到** `../data/lottery_history.json`
 
-#### 方法二：手动更新
+#### 方法三：手动更新
 
 1. 编辑 `data/lottery_history.json`
 2. 更新 `last_updated` 时间戳
@@ -254,15 +274,51 @@ vercel --prod
 
 ## 💡 提示
 
-1. **备份重要**: 爬虫脚本会自动创建备份，手动更新前也建议备份
-2. **数据验证**: 更新后在本地测试（`./start_server.sh`）
-3. **期号格式**: 确保期号格式一致（如 "25122"）
-4. **日期格式**: 使用 ISO 8601 格式（`2025-10-22T10:00:00Z`）
-5. **JSON 格式**: 使用在线工具验证 JSON 格式正确性
+1. **自动化优先**: GitHub Actions 已配置自动更新，推荐直接使用
+2. **手动触发**: 需要立即更新时，可在 GitHub Actions 页面手动运行工作流
+3. **备份重要**: 爬虫脚本会自动创建备份，手动更新前也建议备份
+4. **数据验证**: 更新后在本地测试（`./start_server.sh`）
+5. **期号格式**: 确保期号格式一致（如 "25122"）
+6. **日期格式**: 使用 ISO 8601 格式（`2025-10-22T10:00:00Z`）
+7. **JSON 格式**: 使用在线工具验证 JSON 格式正确性
+
+---
+
+## ⚙️ GitHub Actions 配置说明
+
+### 工作流文件位置
+`.github/workflows/update-lottery-data.yml`
+
+### 定时任务配置
+```yaml
+schedule:
+  - cron: '0 14 * * *'  # UTC 14:00 = 北京时间 22:00
+```
+
+### 修改运行时间
+编辑 cron 表达式以更改运行时间：
+- `0 14 * * *` - 每天 UTC 14:00（北京时间 22:00）
+- `0 2,14 * * *` - 每天 UTC 02:00 和 14:00（北京时间 10:00 和 22:00）
+- `0 */6 * * *` - 每 6 小时运行一次
+
+### 依赖的 Python 包
+- `requests` - HTTP 请求
+- `beautifulsoup4` - HTML 解析
+
+### 权限说明
+工作流使用 `GITHUB_TOKEN` 自动提交更改，无需额外配置 secrets。
 
 ---
 
 ## 🔍 故障排查
+
+### 问题：GitHub Actions 工作流未运行
+
+**解决**:
+1. 确认工作流文件已提交到仓库的 `main` 分支
+2. 检查 Actions 页面是否启用（Settings > Actions > General）
+3. 查看 Actions 标签页的运行历史和错误日志
+4. 确认仓库有写入权限（Settings > Actions > General > Workflow permissions）
 
 ### 问题：网页不显示最新数据
 
@@ -271,6 +327,7 @@ vercel --prod
 2. 检查 `lottery_history.json` 文件是否存在
 3. 确认 JSON 格式正确（无语法错误）
 4. 查看浏览器控制台错误信息
+5. 确认 Vercel 已重新部署（查看 Vercel Dashboard）
 
 ### 问题：预测状态显示不正确
 
