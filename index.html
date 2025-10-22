@@ -58,6 +58,7 @@
                 <div class="tabs">
                     <div class="tabs-list">
                         <button class="tab-trigger active" data-tab="predictions">AI 预测</button>
+                        <button class="tab-trigger" data-tab="predictions-history">预测对比</button>
                         <button class="tab-trigger" data-tab="history">历史开奖</button>
                     </div>
 
@@ -77,6 +78,19 @@
                             </div>
                         </div>
 
+                        <!-- Prediction Status Card -->
+                        <div class="card prediction-status-card" id="predictionStatusCard">
+                            <div class="card-content">
+                                <div class="prediction-status" id="predictionStatus">
+                                    <div class="status-icon" id="statusIcon">-</div>
+                                    <div class="status-info">
+                                        <h3 class="status-text" id="statusText">-</h3>
+                                        <p class="status-description" id="statusDescription">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Model Selector -->
                         <div class="model-selector" id="modelSelector"></div>
 
@@ -87,6 +101,19 @@
                                 <span class="badge badge-outline" id="targetPeriod">-</span>
                             </div>
                             <div class="predictions-grid" id="predictionsGrid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Predictions History Tab -->
+                    <div class="tab-content" data-tab="predictions-history">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">历史预测对比</h2>
+                                <p class="card-description">查看历史期号的预测结果与实际开奖对比，分析预测准确度</p>
+                            </div>
+                            <div class="card-content">
+                                <div id="predictionsHistoryContainer"></div>
+                            </div>
                         </div>
                     </div>
 

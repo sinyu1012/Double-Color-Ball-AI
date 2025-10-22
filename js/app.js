@@ -7,6 +7,7 @@ class LotteryApp {
     constructor() {
         this.lotteryData = null;
         this.predictionData = null;
+        this.predictionsHistoryData = null;
         this.selectedModel = null;
         this.currentTheme = 'light';
 
@@ -21,10 +22,16 @@ class LotteryApp {
             latestPeriod: document.getElementById('latestPeriod'),
             latestDate: document.getElementById('latestDate'),
             latestBalls: document.getElementById('latestBalls'),
+            predictionStatusCard: document.getElementById('predictionStatusCard'),
+            predictionStatus: document.getElementById('predictionStatus'),
+            statusIcon: document.getElementById('statusIcon'),
+            statusText: document.getElementById('statusText'),
+            statusDescription: document.getElementById('statusDescription'),
             modelSelector: document.getElementById('modelSelector'),
             currentModelName: document.getElementById('currentModelName'),
             targetPeriod: document.getElementById('targetPeriod'),
             predictionsGrid: document.getElementById('predictionsGrid'),
+            predictionsHistoryContainer: document.getElementById('predictionsHistoryContainer'),
             historyLastUpdate: document.getElementById('historyLastUpdate'),
             historyList: document.getElementById('historyList')
         };
@@ -140,12 +147,19 @@ class LotteryApp {
 
             this.lotteryData = data.lottery;
             this.predictionData = data.predictions;
+            this.predictionsHistoryData = data.predictionsHistory;
 
             // 渲染最新开奖结果
             this.renderLatestResult();
 
+            // 渲染预测状态
+            this.renderPredictionStatus();
+
             // 渲染模型选择器
             this.renderModelSelector();
+
+            // 渲染历史预测对比
+            this.renderPredictionsHistory();
 
             // 渲染历史记录
             this.renderHistory();
@@ -175,6 +189,45 @@ class LotteryApp {
         this.elements.latestBalls.appendChild(
             Components.createBallsContainer(latest.red_balls, latest.blue_ball)
         );
+    }
+
+    /**
+     * 渲染预测状态
+     */
+    renderPredictionStatus() {
+        if (!this.lotteryData || !this.lotteryData.data || this.lotteryData.data.length === 0) {
+            this.elements.predictionStatusCard.style.display = 'none';
+            return;
+        }
+
+        if (!this.predictionData || !this.predictionData.target_period) {
+            this.elements.predictionStatusCard.style.display = 'none';
+            return;
+        }
+
+        this.elements.predictionStatusCard.style.display = 'block';
+
+        const latestPeriod = parseInt(this.lotteryData.data[0].period);
+        const targetPeriod = parseInt(this.predictionData.target_period);
+
+        // 清除之前的状态类
+        this.elements.predictionStatus.classList.remove('status-未开奖', 'status-已开奖');
+
+        if (targetPeriod > latestPeriod) {
+            // 预测的是未来期号 - 等待开奖
+            this.elements.predictionStatus.classList.add('status-未开奖');
+            this.elements.statusIcon.textContent = '🔮';
+            this.elements.statusText.textContent = '等待开奖';
+            this.elements.statusDescription.textContent =
+                `预测期号 ${targetPeriod} 尚未开奖，当前最新期号为 ${latestPeriod}。请等待开奖后查看预测结果。`;
+        } else {
+            // 预测期号已开奖
+            this.elements.predictionStatus.classList.add('status-已开奖');
+            this.elements.statusIcon.textContent = '✅';
+            this.elements.statusText.textContent = '已开奖';
+            this.elements.statusDescription.textContent =
+                `预测期号 ${targetPeriod} 已开奖，可以查看预测准确度。下方显示各策略的预测结果与实际开奖号码的对比。`;
+        }
     }
 
     /**
@@ -285,6 +338,27 @@ class LotteryApp {
         this.lotteryData.data.forEach(record => {
             const item = Components.createHistoryItem(record);
             this.elements.historyList.appendChild(item);
+        });
+    }
+
+    /**
+     * 渲染历史预测对比
+     */
+    renderPredictionsHistory() {
+        if (!this.predictionsHistoryData ||
+            !this.predictionsHistoryData.predictions_history ||
+            this.predictionsHistoryData.predictions_history.length === 0) {
+            this.elements.predictionsHistoryContainer.innerHTML = '<p>暂无历史预测对比数据</p>';
+            return;
+        }
+
+        // 清空容器
+        this.elements.predictionsHistoryContainer.innerHTML = '';
+
+        // 渲染每个历史预测记录
+        this.predictionsHistoryData.predictions_history.forEach(historyRecord => {
+            const card = Components.createHistoricalPredictionCard(historyRecord);
+            this.elements.predictionsHistoryContainer.appendChild(card);
         });
     }
 }

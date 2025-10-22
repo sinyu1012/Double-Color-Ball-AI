@@ -188,6 +188,207 @@ const Components = {
             minute: '2-digit',
             second: '2-digit'
         });
+    },
+
+    /**
+     * 创建准确度徽章
+     * @param {Object} hitResult - 命中结果
+     * @returns {HTMLElement} 准确度徽章元素
+     */
+    createAccuracyBadge(hitResult) {
+        const badge = document.createElement('span');
+        badge.className = 'accuracy-badge';
+
+        const totalHits = hitResult.total_hits;
+        let level = 'poor';
+        let icon = '';
+
+        if (totalHits >= 5) {
+            level = 'excellent';
+            icon = '🎯';
+        } else if (totalHits >= 3) {
+            level = 'good';
+            icon = '⭐';
+        } else if (totalHits >= 1) {
+            level = 'fair';
+            icon = '✓';
+        } else {
+            level = 'poor';
+            icon = '○';
+        }
+
+        badge.classList.add(level);
+        badge.innerHTML = `<span class="accuracy-icon">${icon}</span> 命中 ${totalHits} 个`;
+
+        return badge;
+    },
+
+    /**
+     * 创建历史预测卡片
+     * @param {Object} historyData - 历史预测数据
+     * @returns {HTMLElement} 历史预测卡片元素
+     */
+    createHistoricalPredictionCard(historyData) {
+        const card = document.createElement('div');
+        card.className = 'history-prediction-card';
+
+        // 卡片头部
+        const header = document.createElement('div');
+        header.className = 'history-prediction-header';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'history-prediction-title';
+
+        const periodSpan = document.createElement('span');
+        periodSpan.className = 'history-prediction-period';
+        periodSpan.textContent = `第 ${historyData.target_period} 期`;
+
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'history-prediction-date';
+        dateSpan.textContent = historyData.prediction_date;
+
+        titleDiv.appendChild(periodSpan);
+        titleDiv.appendChild(dateSpan);
+        header.appendChild(titleDiv);
+        card.appendChild(header);
+
+        // 实际开奖结果
+        const actualSection = document.createElement('div');
+        actualSection.className = 'actual-result-section';
+
+        const actualLabel = document.createElement('div');
+        actualLabel.className = 'actual-result-label';
+        actualLabel.textContent = '实际开奖结果';
+
+        const actualBalls = this.createBallsContainer(
+            historyData.actual_result.red_balls,
+            historyData.actual_result.blue_ball
+        );
+
+        actualSection.appendChild(actualLabel);
+        actualSection.appendChild(actualBalls);
+        card.appendChild(actualSection);
+
+        // 各模型预测
+        const modelsSection = document.createElement('div');
+        modelsSection.className = 'model-predictions-section';
+
+        historyData.models.forEach(model => {
+            const modelSection = document.createElement('div');
+            modelSection.className = 'model-section';
+
+            // 模型头部
+            const modelHeader = document.createElement('div');
+            modelHeader.className = 'model-header';
+
+            const modelName = document.createElement('div');
+            modelName.className = 'model-name';
+            modelName.textContent = model.model_name;
+
+            const modelBestGroup = document.createElement('div');
+            modelBestGroup.className = 'model-best-group';
+
+            const bestLabel = document.createElement('span');
+            bestLabel.className = 'best-group-label';
+            bestLabel.textContent = '最佳预测:';
+
+            const bestBadge = document.createElement('span');
+            bestBadge.className = 'best-badge';
+            bestBadge.innerHTML = `⭐ 组 ${model.best_group} (${model.best_hit_count} 个)`;
+
+            modelBestGroup.appendChild(bestLabel);
+            modelBestGroup.appendChild(bestBadge);
+
+            modelHeader.appendChild(modelName);
+            modelHeader.appendChild(modelBestGroup);
+
+            modelSection.appendChild(modelHeader);
+
+            // 预测列表
+            const comparisonGrid = document.createElement('div');
+            comparisonGrid.className = 'comparison-grid';
+
+            model.predictions.forEach(prediction => {
+                const row = this.createComparisonRow(
+                    prediction,
+                    historyData.actual_result,
+                    prediction.group_id === model.best_group
+                );
+                comparisonGrid.appendChild(row);
+            });
+
+            modelSection.appendChild(comparisonGrid);
+            modelsSection.appendChild(modelSection);
+        });
+
+        card.appendChild(modelsSection);
+
+        return card;
+    },
+
+    /**
+     * 创建对比行
+     * @param {Object} prediction - 预测数据
+     * @param {Object} actualResult - 实际结果
+     * @param {boolean} isBest - 是否为最佳预测
+     * @returns {HTMLElement} 对比行元素
+     */
+    createComparisonRow(prediction, actualResult, isBest = false) {
+        const row = document.createElement('div');
+        row.className = 'comparison-row';
+
+        if (isBest) {
+            row.classList.add('best-prediction');
+        }
+
+        // 头部
+        const header = document.createElement('div');
+        header.className = 'comparison-header';
+
+        const strategy = document.createElement('div');
+        strategy.className = 'comparison-strategy';
+        strategy.textContent = prediction.strategy;
+
+        const badges = document.createElement('div');
+        badges.className = 'comparison-badges';
+
+        const groupBadge = document.createElement('span');
+        groupBadge.className = 'badge badge-secondary';
+        groupBadge.textContent = `组 ${prediction.group_id}`;
+
+        const accuracyBadge = this.createAccuracyBadge(prediction.hit_result);
+
+        badges.appendChild(groupBadge);
+        badges.appendChild(accuracyBadge);
+
+        header.appendChild(strategy);
+        header.appendChild(badges);
+        row.appendChild(header);
+
+        // 描述
+        if (prediction.description) {
+            const desc = document.createElement('div');
+            desc.className = 'comparison-description';
+            desc.textContent = prediction.description;
+            row.appendChild(desc);
+        }
+
+        // 号码展示
+        const ballsDiv = document.createElement('div');
+        ballsDiv.className = 'comparison-balls';
+
+        const hitInfo = {
+            redHits: prediction.hit_result.red_hits,
+            blueHit: prediction.hit_result.blue_hit
+        };
+
+        ballsDiv.appendChild(
+            this.createBallsContainer(prediction.red_balls, prediction.blue_ball, hitInfo)
+        );
+
+        row.appendChild(ballsDiv);
+
+        return row;
     }
 };
 

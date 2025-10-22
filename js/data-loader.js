@@ -43,19 +43,40 @@ const DataLoader = {
     },
 
     /**
+     * 加载历史预测对比数据
+     * @returns {Promise<Object>} 历史预测对比数据对象
+     */
+    async loadPredictionsHistory() {
+        try {
+            const response = await fetch('./data/predictions_history.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('历史预测对比数据加载成功', data);
+            return data;
+        } catch (error) {
+            console.error('加载历史预测对比数据失败:', error);
+            throw error;
+        }
+    },
+
+    /**
      * 加载所有数据
      * @returns {Promise<Object>} 包含历史数据和预测数据的对象
      */
     async loadAllData() {
         try {
-            const [lotteryData, predictionData] = await Promise.all([
+            const [lotteryData, predictionData, predictionsHistoryData] = await Promise.all([
                 this.loadLotteryHistory(),
-                this.loadPredictions()
+                this.loadPredictions(),
+                this.loadPredictionsHistory()
             ]);
 
             return {
                 lottery: lotteryData,
-                predictions: predictionData
+                predictions: predictionData,
+                predictionsHistory: predictionsHistoryData
             };
         } catch (error) {
             console.error('加载数据失败:', error);

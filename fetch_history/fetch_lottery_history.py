@@ -203,6 +203,21 @@ class LotteryDataFetcher:
                 return None
         return None
 
+    def format_for_web(self, data):
+        """
+        格式化数据为网页使用的格式
+
+        Args:
+            data: 原始数据列表
+
+        Returns:
+            格式化后的数据字典
+        """
+        return {
+            "last_updated": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "data": data
+        }
+
     def save_to_json(self, data, filename="lottery_data.json", preserve_history=True):
         """
         保存数据到 JSON 文件
@@ -225,6 +240,18 @@ class LotteryDataFetcher:
                     json.dump(merged_data, f, ensure_ascii=False, indent=2)
                 print(f"\n数据已成功保存到 {filename}")
                 print(f"共保存 {len(merged_data)} 期数据")
+
+                # 同时更新到 ../data/lottery_history.json
+                try:
+                    web_data_path = os.path.join(os.path.dirname(filename), '..', 'data', 'lottery_history.json')
+                    formatted_data = self.format_for_web(merged_data)
+
+                    with open(web_data_path, 'w', encoding='utf-8') as f:
+                        json.dump(formatted_data, f, ensure_ascii=False, indent=2)
+                    print(f"✓ 已同步到网页数据文件: {web_data_path}")
+                except Exception as e:
+                    print(f"⚠️  同步到网页数据失败: {e}")
+
             else:
                 # 直接保存新数据
                 with open(filename, 'w', encoding='utf-8') as f:

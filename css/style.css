@@ -302,6 +302,10 @@ body {
     border: 2px solid hsl(var(--primary) / 0.2);
 }
 
+.prediction-status-card {
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.3));
+}
+
 .disclaimer-card {
     border-color: hsl(var(--yellow-highlight) / 0.5);
     background: hsl(var(--yellow-highlight) / 0.05);
@@ -312,6 +316,57 @@ body {
     color: hsl(var(--muted-foreground));
     text-align: center;
     line-height: 1.6;
+}
+
+/* ==================== Prediction Status ==================== */
+.prediction-status {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    font-size: 2rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.status-icon:hover {
+    transform: scale(1.1);
+}
+
+.status-info {
+    flex: 1;
+}
+
+.status-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.25rem;
+}
+
+.status-description {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.5;
+    margin: 0;
+}
+
+.prediction-status.status-未开奖 .status-icon {
+    background: linear-gradient(135deg, hsl(142, 71%, 45%), hsl(142, 71%, 65%));
+    box-shadow: 0 4px 12px hsla(142, 71%, 45%, 0.3);
+}
+
+.prediction-status.status-已开奖 .status-icon {
+    background: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(217, 91%, 75%));
+    box-shadow: 0 4px 12px hsla(217, 91%, 60%, 0.3);
 }
 
 /* ==================== Badges ==================== */
@@ -528,6 +583,190 @@ body {
     flex: 1;
 }
 
+/* ==================== Historical Predictions ==================== */
+.history-prediction-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.history-prediction-header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.2));
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.history-prediction-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.history-prediction-period {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+}
+
+.history-prediction-date {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.actual-result-section {
+    padding: 1rem 1.5rem;
+    background: hsl(var(--muted) / 0.3);
+    border-bottom: 2px solid hsl(var(--border));
+}
+
+.actual-result-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 0.5rem;
+}
+
+.model-predictions-section {
+    padding: 1.5rem;
+}
+
+.model-section {
+    margin-bottom: 2rem;
+}
+
+.model-section:last-child {
+    margin-bottom: 0;
+}
+
+.model-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.model-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+}
+
+.model-best-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.best-group-label {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.comparison-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.comparison-row {
+    padding: 1rem;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+}
+
+.comparison-row:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateX(2px);
+}
+
+.comparison-row.best-prediction {
+    border: 2px solid hsl(var(--yellow-highlight));
+    background: hsl(var(--yellow-highlight) / 0.05);
+}
+
+.comparison-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.comparison-strategy {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+}
+
+.comparison-badges {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.comparison-description {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.comparison-balls {
+    margin-bottom: 0.5rem;
+}
+
+.accuracy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.accuracy-badge.excellent {
+    background: linear-gradient(135deg, hsl(142, 71%, 45%), hsl(142, 71%, 55%));
+    color: white;
+}
+
+.accuracy-badge.good {
+    background: linear-gradient(135deg, hsl(45, 93%, 47%), hsl(45, 93%, 57%));
+    color: white;
+}
+
+.accuracy-badge.fair {
+    background: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(217, 91%, 70%));
+    color: white;
+}
+
+.accuracy-badge.poor {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+}
+
+.accuracy-badge .accuracy-icon {
+    font-size: 0.875rem;
+}
+
+.best-badge {
+    background: linear-gradient(135deg, hsl(var(--yellow-highlight)), hsl(45, 93%, 57%));
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
 /* ==================== Responsive Design ==================== */
 @media (max-width: 768px) {
     .header-content {
@@ -547,6 +786,11 @@ body {
     .tabs-list {
         width: 100%;
         justify-content: center;
+    }
+
+    .tab-trigger {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
     }
 
     .predictions-grid {
@@ -570,6 +814,41 @@ body {
 
     .history-info {
         width: 100%;
+    }
+
+    .history-prediction-header {
+        padding: 1rem;
+    }
+
+    .history-prediction-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .actual-result-section {
+        padding: 1rem;
+    }
+
+    .model-predictions-section {
+        padding: 1rem;
+    }
+
+    .model-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .comparison-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .comparison-badges {
+        width: 100%;
+        justify-content: flex-start;
     }
 }
 
