@@ -19,6 +19,10 @@ class LotteryApp {
             btnTheme: document.getElementById('btnTheme'),
             tabTriggers: document.querySelectorAll('.tab-trigger'),
             tabContents: document.querySelectorAll('.tab-content'),
+            nextDrawCard: document.getElementById('nextDrawCard'),
+            nextPeriod: document.getElementById('nextPeriod'),
+            nextDate: document.getElementById('nextDate'),
+            predictionAvailability: document.getElementById('predictionAvailability'),
             latestPeriod: document.getElementById('latestPeriod'),
             latestDate: document.getElementById('latestDate'),
             latestBalls: document.getElementById('latestBalls'),
@@ -152,6 +156,9 @@ class LotteryApp {
             // 渲染最新开奖结果
             this.renderLatestResult();
 
+            // 渲染下一期开奖信息
+            this.renderNextDrawInfo();
+
             // 渲染预测状态
             this.renderPredictionStatus();
 
@@ -189,6 +196,43 @@ class LotteryApp {
         this.elements.latestBalls.appendChild(
             Components.createBallsContainer(latest.red_balls, latest.blue_ball)
         );
+    }
+
+    /**
+     * 渲染下一期开奖信息
+     */
+    renderNextDrawInfo() {
+        if (!this.lotteryData || !this.lotteryData.next_draw) {
+            this.elements.nextDrawCard.style.display = 'none';
+            return;
+        }
+
+        const nextDraw = this.lotteryData.next_draw;
+
+        // 显示卡片
+        this.elements.nextDrawCard.style.display = 'block';
+
+        // 设置期号和日期
+        this.elements.nextPeriod.textContent = `第 ${nextDraw.next_period} 期`;
+        this.elements.nextDate.textContent = `${nextDraw.next_date_display} ${nextDraw.weekday} ${nextDraw.draw_time}`;
+
+        // 检查是否有对应的AI预测
+        const hasPrediction = this.predictionData &&
+                             this.predictionData.target_period === nextDraw.next_period;
+
+        // 更新预测可用性状态
+        const availabilityEl = this.elements.predictionAvailability;
+        availabilityEl.classList.remove('has-prediction', 'no-prediction');
+
+        if (hasPrediction) {
+            availabilityEl.classList.add('has-prediction');
+            availabilityEl.querySelector('.availability-icon').textContent = '✓';
+            availabilityEl.querySelector('.availability-text').textContent = '已有AI预测';
+        } else {
+            availabilityEl.classList.add('no-prediction');
+            availabilityEl.querySelector('.availability-icon').textContent = '⚠';
+            availabilityEl.querySelector('.availability-text').textContent = '暂无AI预测';
+        }
     }
 
     /**

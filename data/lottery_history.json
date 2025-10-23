@@ -1,5 +1,5 @@
 {
-  "last_updated": "2025-10-22T14:15:45Z",
+  "last_updated": "2025-10-22T20:39:53Z",
   "data": [
     {
       "period": "25121",
@@ -404,5 +404,12 @@
       "blue_ball": "14",
       "date": "2025-08-10"
     }
-  ]
+  ],
+  "next_draw": {
+    "next_period": "25122",
+    "next_date": "2025-10-23",
+    "next_date_display": "2025年10月23日",
+    "weekday": "周四",
+    "draw_time": "21:15"
+  }
 }

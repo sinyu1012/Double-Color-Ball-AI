@@ -6,8 +6,30 @@
 
 ### 1. 历史开奖数据
 - **位置**: `data/lottery_history.json`
-- **格式**: 包含 `last_updated` 和 `data` 数组
-- **用途**: 网页显示历史开奖记录
+- **格式**: 包含 `last_updated`、`data` 数组和 `next_draw` 对象
+- **用途**: 网页显示历史开奖记录和下期开奖信息
+
+**数据结构**:
+```json
+{
+  "last_updated": "2025-10-22T20:39:53Z",
+  "data": [
+    {
+      "period": "25121",
+      "date": "2025-10-21",
+      "red_balls": ["06", "08", "10", "25", "29", "30"],
+      "blue_ball": "08"
+    }
+  ],
+  "next_draw": {
+    "next_period": "25122",
+    "next_date": "2025-10-23",
+    "next_date_display": "2025年10月23日",
+    "weekday": "周四",
+    "draw_time": "21:15"
+  }
+}
+```
 
 ### 2. 当前 AI 预测数据
 - **位置**: `data/ai_predictions.json`
@@ -58,6 +80,7 @@ python3 fetch_lottery_history.py
 - ✅ 创建备份文件（带时间戳）
 - ✅ 保存到 `lottery_data.json`
 - ✅ **自动同步到** `../data/lottery_history.json`
+- ✅ **自动计算下期开奖信息**（期号、日期、星期）
 
 #### 方法三：手动更新
 

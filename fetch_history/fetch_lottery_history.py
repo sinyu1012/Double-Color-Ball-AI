@@ -22,7 +22,7 @@ import json
 import time
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class LotteryDataFetcher:
@@ -203,6 +203,57 @@ class LotteryDataFetcher:
                 return None
         return None
 
+    def predict_next_draw(self, latest_period, latest_date):
+        """
+        预测下一期开奖信息
+
+        双色球开奖规律：每周二、四、日开奖（晚上21:15）
+
+        Args:
+            latest_period: 最新期号
+            latest_date: 最新开奖日期字符串 (YYYY-MM-DD)
+
+        Returns:
+            包含下一期期号和日期的字典
+        """
+        try:
+            # 解析最新期号和日期
+            period_num = int(latest_period)
+            last_draw_date = datetime.strptime(latest_date, '%Y-%m-%d')
+
+            # 双色球开奖日：周二(1), 周四(3), 周日(6)
+            draw_weekdays = [1, 3, 6]
+
+            # 从最新开奖日期的下一天开始查找
+            next_date = last_draw_date + timedelta(days=1)
+
+            # 找到下一个开奖日
+            while next_date.weekday() not in draw_weekdays:
+                next_date += timedelta(days=1)
+
+            # 计算下一期期号
+            next_period = str(period_num + 1).zfill(len(latest_period))
+
+            # 格式化日期
+            next_date_str = next_date.strftime('%Y-%m-%d')
+            next_date_display = next_date.strftime('%Y年%m月%d日')
+
+            # 计算星期
+            weekday_names = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            weekday = weekday_names[next_date.weekday()]
+
+            return {
+                'next_period': next_period,
+                'next_date': next_date_str,
+                'next_date_display': next_date_display,
+                'weekday': weekday,
+                'draw_time': '21:15'
+            }
+
+        except Exception as e:
+            print(f"预测下一期信息时出错: {e}")
+            return None
+
     def format_for_web(self, data):
         """
         格式化数据为网页使用的格式
@@ -213,10 +264,19 @@ class LotteryDataFetcher:
         Returns:
             格式化后的数据字典
         """
-        return {
+        formatted = {
             "last_updated": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
             "data": data
         }
+
+        # 添加下一期预测信息
+        if data and len(data) > 0:
+            latest = data[0]
+            next_draw_info = self.predict_next_draw(latest['period'], latest['date'])
+            if next_draw_info:
+                formatted['next_draw'] = next_draw_info
+
+        return formatted
 
     def save_to_json(self, data, filename="lottery_data.json", preserve_history=True):
         """

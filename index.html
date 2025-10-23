@@ -64,6 +64,26 @@
 
                     <!-- AI Predictions Tab -->
                     <div class="tab-content active" data-tab="predictions">
+                        <!-- Next Draw Info Card -->
+                        <div class="card next-draw-card" id="nextDrawCard" style="display: none;">
+                            <div class="card-content">
+                                <div class="next-draw-info">
+                                    <div class="next-draw-icon">🎯</div>
+                                    <div class="next-draw-details">
+                                        <h3 class="next-draw-title">下期开奖</h3>
+                                        <div class="next-draw-period-date">
+                                            <span class="next-period" id="nextPeriod">-</span>
+                                            <span class="next-date" id="nextDate">-</span>
+                                        </div>
+                                        <div class="prediction-availability" id="predictionAvailability">
+                                            <span class="availability-icon">✓</span>
+                                            <span class="availability-text">已有AI预测</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Latest Result Card -->
                         <div class="card latest-result-card" id="latestResultCard">
                             <div class="card-header">
