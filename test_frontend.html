@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+    <style>
+        body { font-family: system-ui; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .result { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .success { color: #16a34a; font-weight: bold; }
+        .error { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>测试预测对比逻辑</h1>
+    <div class="result" id="result">加载中...</div>
+    <script>
+        async function test() {
+            const result = document.getElementById('result');
+            const lottery = await fetch('/data/lottery_history.json').then(r => r.json());
+            const predictions = await fetch('/data/ai_predictions.json').then(r => r.json());
+            
+            const targetPeriod = predictions.target_period;
+            const latestPeriod = lottery.data[0].period;
+            
+            let actualResult = null;
+            if (lottery.data && lottery.data.length > 0) {
+                if (parseInt(targetPeriod) <= parseInt(latestPeriod)) {
+                    actualResult = lottery.data.find(item => item.period === targetPeriod);
+                }
+            }
+            
+            const isCorrect = !actualResult;
+            result.innerHTML = '<p>最新期号: ' + latestPeriod + '</p>' +
+                '<p>预测期号: ' + targetPeriod + '</p>' +
+                '<p>actualResult: ' + (actualResult ? 'NOT NULL' : 'null') + '</p>' +
+                '<p class="' + (isCorrect ? 'success' : 'error') + '">' +
+                (isCorrect ? '✅ 正确：不会显示命中' : '❌ 错误：会显示命中') + '</p>';
+        }
+        test();
+    </script>
+</body>
+</html>
