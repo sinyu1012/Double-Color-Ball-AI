@@ -6,7 +6,11 @@
       "Bash(git rebase --continue)",
       "Bash(python3 add_gpt5_prediction.py)",
       "Bash(git add data/ai_predictions.json)",
-      "Bash(git commit -m \"feat: update predictions for period 25122 with new models (Gemini2.5, DeepseekR1) and add GPT5 to period 25121 history\")"
+      "Bash(git commit -m \"feat: update predictions for period 25122 with new models (Gemini2.5, DeepseekR1) and add GPT5 to period 25121 history\")",
+      "Bash(python3 generate_ai_prediction.py)",
+      "Bash(python3 -c \"import json; data = json.load(open(''data/ai_predictions.json'')); print(f''✅ JSON 格式正确''); print(f''预测期号: {data[\"\"target_period\"\"]}''); print(f''预测日期: {data[\"\"prediction_date\"\"]}''); print(f''模型数量: {len(data[\"\"models\"\"])}'')\")",
+      "Bash(git add generate_ai_prediction.py AI_PREDICTION_GUIDE.md doc/prompt.md README.md test_prediction.py)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add AI prediction automation system\n\n## New Features\n- 🤖 Auto-generate predictions from 4 AI models (GPT-5, Claude 4.5, Gemini 2.5, DeepSeek R1)\n- 📊 5 prediction strategies per model (热号/冷号/平衡/周期/综合)\n- ✅ Auto-validate prediction data format\n- 💾 Auto-backup existing predictions\n- 🎯 Auto-fetch next draw info from lottery history\n\n## New Files\n- `generate_ai_prediction.py` - Main automation script\n- `AI_PREDICTION_GUIDE.md` - Detailed usage guide\n- `doc/prompt.md` - Optimized AI prompt template\n- `test_prediction.py` - Validation test script\n\n## Updates\n- Updated README.md with automation instructions\n- Optimized prompt to return JSON-only response\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
