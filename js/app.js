@@ -347,16 +347,25 @@ class LotteryApp {
         this.elements.currentModelName.textContent = `${model.model_name} 的预测`;
         this.elements.targetPeriod.textContent = `预测期号: ${this.predictionData.target_period}`;
 
-        // 获取最新开奖结果用于对比
-        const latestResult = this.lotteryData.data && this.lotteryData.data.length > 0
-            ? this.lotteryData.data[0]
-            : null;
+        // 只有当预测期号已开奖时，才获取对应的开奖结果用于对比
+        let actualResult = null;
+        if (this.lotteryData.data && this.lotteryData.data.length > 0) {
+            const targetPeriod = this.predictionData.target_period;
+            const latestPeriod = this.lotteryData.data[0].period;
+
+            // 只有当预测期号 <= 最新期号时，才查找对应的开奖结果
+            if (parseInt(targetPeriod) <= parseInt(latestPeriod)) {
+                actualResult = this.lotteryData.data.find(
+                    item => item.period === targetPeriod
+                );
+            }
+        }
 
         // 清空并渲染预测卡片
         this.elements.predictionsGrid.innerHTML = '';
 
         model.predictions.forEach(prediction => {
-            const card = Components.createPredictionCard(prediction, latestResult);
+            const card = Components.createPredictionCard(prediction, actualResult);
             this.elements.predictionsGrid.appendChild(card);
         });
     }
