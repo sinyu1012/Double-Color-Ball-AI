@@ -6,7 +6,7 @@
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from openai import OpenAI
 from typing import Dict, Any
 
@@ -27,6 +27,7 @@ MODELS = [
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 LOTTERY_HISTORY_FILE = os.path.join(SCRIPT_DIR, "data", "lottery_history.json")
 AI_PREDICTIONS_FILE = os.path.join(SCRIPT_DIR, "data", "ai_predictions.json")
+PREDICTIONS_HISTORY_FILE = os.path.join(SCRIPT_DIR, "data", "predictions_history.json")
 
 # Prompt 模板
 PROMPT_TEMPLATE = """你将扮演一个由多个自主AI分析师组成的团队，每个分析师都是一个独立的"策略模型"，你们的共同目标是根据历史数据，为下一期双色球彩票选择号码。
@@ -121,6 +122,32 @@ def load_lottery_history() -> Dict[str, Any]:
     except Exception as e:
         print(f"❌ 加载历史数据失败: {str(e)}")
         raise
+
+def get_next_draw_date() -> str:
+    """
+    根据双色球开奖规则（每周二、四、日 21:15）计算下期开奖日期
+    返回 YYYY-MM-DD 格式
+    """
+    today = datetime.now()
+    weekday = today.weekday()  # 0=周一, 1=周二, 2=周三, 3=周四, 4=周五, 5=周六, 6=周日
+
+    # 开奖日: 周二(1), 周四(3), 周日(6)
+    draw_weekdays = [1, 3, 6]
+
+    # 如果今天是开奖日且未到开奖时间(21:15)，则预测今天
+    if weekday in draw_weekdays:
+        draw_time = today.replace(hour=21, minute=15, second=0, microsecond=0)
+        if today < draw_time:
+            return today.strftime("%Y-%m-%d")
+
+    # 否则找下一个开奖日
+    for days_ahead in range(1, 8):
+        future_date = today + timedelta(days=days_ahead)
+        if future_date.weekday() in draw_weekdays:
+            return future_date.strftime("%Y-%m-%d")
+
+    # 理论上不会到这里
+    return today.strftime("%Y-%m-%d")
 
 def get_openai_client() -> OpenAI:
     """获取 OpenAI 客户端"""
@@ -231,6 +258,9 @@ def generate_predictions() -> Dict[str, Any]:
     print("📊 加载历史开奖数据...")
     lottery_data = load_lottery_history()
 
+    # 归档旧预测（如果已开奖）
+    archive_old_prediction(lottery_data)
+
     # 获取下期信息
     next_draw = lottery_data.get("next_draw", {})
     target_period = next_draw.get("next_period", "")
@@ -248,8 +278,9 @@ def generate_predictions() -> Dict[str, Any]:
     history_data = lottery_data.get("data", [])[:30]
     history_json = json.dumps(history_data, ensure_ascii=False, indent=2)
 
-    # 当前日期
-    prediction_date = datetime.now().strftime("%Y-%m-%d")
+    # 预测日期：根据开奖规则计算下期开奖日期
+    prediction_date = get_next_draw_date()
+    print(f"📅 预测日期: {prediction_date}\n")
 
     # 初始化 OpenAI 客户端
     client = get_openai_client()
@@ -298,6 +329,111 @@ def generate_predictions() -> Dict[str, Any]:
 
     print(f"✅ 成功生成 {len(all_predictions)}/{len(MODELS)} 个模型的预测\n")
     return result
+
+def calculate_hit_result(prediction_group: Dict[str, Any], actual_result: Dict[str, Any]) -> Dict[str, Any]:
+    """计算单组预测的命中结果"""
+    red_hits = [b for b in prediction_group["red_balls"] if b in actual_result["red_balls"]]
+    blue_hit = prediction_group["blue_ball"] == actual_result["blue_ball"]
+
+    return {
+        "red_hits": red_hits,
+        "red_hit_count": len(red_hits),
+        "blue_hit": blue_hit,
+        "total_hits": len(red_hits) + (1 if blue_hit else 0)
+    }
+
+def archive_old_prediction(lottery_data: Dict[str, Any]):
+    """将旧预测归档到历史记录（如果已开奖）"""
+    try:
+        # 检查是否存在旧预测文件
+        if not os.path.exists(AI_PREDICTIONS_FILE):
+            print("  ℹ️  没有旧预测需要归档\n")
+            return
+
+        # 读取旧预测
+        with open(AI_PREDICTIONS_FILE, 'r', encoding='utf-8') as f:
+            old_predictions = json.load(f)
+
+        old_target_period = old_predictions.get("target_period")
+        if not old_target_period:
+            print("  ⚠️  旧预测文件格式异常，跳过归档\n")
+            return
+
+        # 检查该期号是否已开奖
+        latest_period = lottery_data.get("data", [{}])[0].get("period")
+        if not latest_period or int(old_target_period) > int(latest_period):
+            print(f"  ℹ️  旧预测期号 {old_target_period} 尚未开奖，无需归档\n")
+            return
+
+        print(f"  📦 旧预测期号 {old_target_period} 已开奖，开始归档...")
+
+        # 查找实际开奖结果
+        actual_result = None
+        for draw in lottery_data.get("data", []):
+            if draw.get("period") == old_target_period:
+                actual_result = draw
+                break
+
+        if not actual_result:
+            print(f"  ⚠️  找不到期号 {old_target_period} 的开奖结果，跳过归档\n")
+            return
+
+        # 读取历史记录文件
+        history_data = {"predictions_history": []}
+        if os.path.exists(PREDICTIONS_HISTORY_FILE):
+            with open(PREDICTIONS_HISTORY_FILE, 'r', encoding='utf-8') as f:
+                history_data = json.load(f)
+
+        # 检查该期号是否已存在
+        existing_record = next((r for r in history_data["predictions_history"]
+                               if r["target_period"] == old_target_period), None)
+
+        if existing_record:
+            print(f"  ℹ️  期号 {old_target_period} 已存在于历史记录中\n")
+            return
+
+        # 为每个模型计算命中结果
+        models_with_hits = []
+        for model_data in old_predictions.get("models", []):
+            # 为每组预测计算命中
+            predictions_with_hits = []
+            for pred_group in model_data.get("predictions", []):
+                pred_with_hit = pred_group.copy()
+                pred_with_hit["hit_result"] = calculate_hit_result(pred_group, actual_result)
+                predictions_with_hits.append(pred_with_hit)
+
+            # 找出最佳预测组
+            best_pred = max(predictions_with_hits, key=lambda p: p["hit_result"]["total_hits"])
+
+            models_with_hits.append({
+                "model_id": model_data.get("model_id"),
+                "model_name": model_data.get("model_name"),
+                "predictions": predictions_with_hits,
+                "best_group": best_pred["group_id"],
+                "best_hit_count": best_pred["hit_result"]["total_hits"]
+            })
+
+        # 创建新的历史记录
+        new_record = {
+            "prediction_date": old_predictions.get("prediction_date"),
+            "target_period": old_target_period,
+            "actual_result": actual_result,
+            "models": models_with_hits
+        }
+
+        # 插入到历史记录顶部
+        history_data["predictions_history"].insert(0, new_record)
+
+        # 保存历史记录
+        with open(PREDICTIONS_HISTORY_FILE, 'w', encoding='utf-8') as f:
+            json.dump(history_data, f, ensure_ascii=False, indent=2)
+
+        print(f"  ✅ 已将期号 {old_target_period} 的预测归档到历史记录")
+        print(f"  📊 归档模型数: {len(models_with_hits)}\n")
+
+    except Exception as e:
+        print(f"  ⚠️  归档旧预测时出错: {str(e)}")
+        print(f"  继续生成新预测...\n")
 
 def save_predictions(predictions: Dict[str, Any]):
     """保存预测数据到文件"""
