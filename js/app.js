@@ -10,6 +10,7 @@ class LotteryApp {
         this.predictionsHistoryData = null;
         this.selectedModel = null;
         this.currentTheme = 'light';
+        this.chartInstance = null;
 
         // DOM 元素引用
         this.elements = {
@@ -37,7 +38,8 @@ class LotteryApp {
             predictionsGrid: document.getElementById('predictionsGrid'),
             predictionsHistoryContainer: document.getElementById('predictionsHistoryContainer'),
             historyLastUpdate: document.getElementById('historyLastUpdate'),
-            historyList: document.getElementById('historyList')
+            historyList: document.getElementById('historyList'),
+            accuracyChart: document.getElementById('accuracyChart')
         };
 
         this.init();
@@ -167,6 +169,9 @@ class LotteryApp {
 
             // 渲染历史预测对比
             this.renderPredictionsHistory();
+
+            // 渲染准确率图表
+            this.renderAccuracyChart();
 
             // 渲染历史记录
             this.renderHistory();
@@ -412,6 +417,148 @@ class LotteryApp {
         this.predictionsHistoryData.predictions_history.forEach(historyRecord => {
             const card = Components.createHistoricalPredictionCard(historyRecord);
             this.elements.predictionsHistoryContainer.appendChild(card);
+        });
+    }
+
+    /**
+     * 渲染准确率图表
+     */
+    renderAccuracyChart() {
+        if (!this.predictionsHistoryData ||
+            !this.predictionsHistoryData.predictions_history ||
+            this.predictionsHistoryData.predictions_history.length === 0) {
+            this.elements.accuracyChart.parentElement.innerHTML = '<p>暂无历史数据</p>';
+            return;
+        }
+
+        // 销毁之前的图表实例
+        if (this.chartInstance) {
+            this.chartInstance.destroy();
+        }
+
+        const history = this.predictionsHistoryData.predictions_history;
+
+        // 提取期号（X轴标签）- 按时间顺序（从旧到新）
+        const periods = history.map(item => item.target_period).reverse();
+
+        // 获取所有模型名称
+        const modelNames = history.length > 0 ? history[0].models.map(m => m.model_name) : [];
+
+        // 为每个模型创建数据集
+        const datasets = [];
+
+        // 定义模型颜色
+        const modelColors = {
+            'GPT-5': { border: 'rgb(255, 99, 132)', background: 'rgba(255, 99, 132, 0.1)' },
+            'Claude 4.5': { border: 'rgb(54, 162, 235)', background: 'rgba(54, 162, 235, 0.1)' },
+            'Gemini 2.5': { border: 'rgb(255, 205, 86)', background: 'rgba(255, 205, 86, 0.1)' },
+            'Gemini 2.5 Pro': { border: 'rgb(255, 205, 86)', background: 'rgba(255, 205, 86, 0.1)' },
+            'DeepSeek R1': { border: 'rgb(75, 192, 192)', background: 'rgba(75, 192, 192, 0.1)' },
+            'GPT5': { border: 'rgb(153, 102, 255)', background: 'rgba(153, 102, 255, 0.1)' }
+        };
+
+        modelNames.forEach(modelName => {
+            // 为每个模型提取其在每期的最佳命中数
+            const data = history.slice().reverse().map(periodData => {
+                const model = periodData.models.find(m => m.model_name === modelName);
+                return model ? model.best_hit_count : 0;
+            });
+
+            const colors = modelColors[modelName] || {
+                border: `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`,
+                background: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.1)`
+            };
+
+            datasets.push({
+                label: modelName,
+                data: data,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+                borderWidth: 2,
+                tension: 0.3, // 曲线平滑度
+                fill: false,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            });
+        });
+
+        // 创建图表
+        const ctx = this.elements.accuracyChart.getContext('2d');
+        this.chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: periods,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2.5,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: 命中 ${context.parsed.y} 个`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '期号',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '命中号码数',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        beginAtZero: true,
+                        max: 7,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return value + ' 个';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
         });
     }
 }

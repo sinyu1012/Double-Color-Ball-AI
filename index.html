@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>双色球开奖与 AI 预测数据展示</title>
-    <link rel="stylesheet" href="css/style.css?v=20251027">
+    <link rel="stylesheet" href="css/style.css?v=20251031">
 </head>
 <body class="light-theme">
     <!-- 加载动画 -->
@@ -126,6 +126,18 @@
 
                     <!-- Predictions History Tab -->
                     <div class="tab-content" data-tab="predictions-history">
+                        <!-- Accuracy Chart Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">AI 模型准确率趋势</h2>
+                                <p class="card-description">展示各AI模型在历史预测中的命中率变化趋势</p>
+                            </div>
+                            <div class="card-content">
+                                <canvas id="accuracyChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Historical Predictions Card -->
                         <div class="card">
                             <div class="card-header">
                                 <h2 class="card-title">历史预测对比</h2>
@@ -165,9 +177,12 @@
         </main>
     </div>
 
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <!-- 引入 JavaScript 模块 -->
-    <script src="js/data-loader.js?v=20251027"></script>
-    <script src="js/components.js?v=20251027"></script>
-    <script src="js/app.js?v=20251027"></script>
+    <script src="js/data-loader.js?v=20251031"></script>
+    <script src="js/components.js?v=20251031"></script>
+    <script src="js/app.js?v=20251031"></script>
 </body>
 </html>

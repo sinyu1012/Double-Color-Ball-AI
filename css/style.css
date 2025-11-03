@@ -860,6 +860,19 @@ body {
     gap: 0.25rem;
 }
 
+/* ==================== Chart Styles ==================== */
+#accuracyChart {
+    max-width: 100%;
+    height: auto;
+    min-height: 300px;
+}
+
+.card-content canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+}
+
 /* ==================== Responsive Design ==================== */
 @media (max-width: 768px) {
     .header-content {
