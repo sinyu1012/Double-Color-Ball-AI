@@ -487,6 +487,60 @@ body {
 .badge-hit {
     background: hsl(var(--yellow-highlight));
     color: white;
+    margin-right: 0.5rem;
+}
+
+/* Prize Level Badges */
+.prize-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.prize-badge.prize-level-1 {
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+}
+
+.prize-badge.prize-level-2 {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.prize-badge.prize-level-3 {
+    background: linear-gradient(135deg, #ffc107, #ffb300);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.prize-badge.prize-level-4 {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+    color: white;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.prize-badge.prize-level-5 {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.prize-badge.prize-level-6 {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    color: white;
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
+}
+
+.prize-badge.prize-level-none {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
 }
 
 /* ==================== Balls ==================== */
@@ -629,6 +683,10 @@ body {
 }
 
 .hit-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     padding: 0.5rem;
     background: hsl(var(--yellow-highlight) / 0.1);
     border-left: 3px solid hsl(var(--yellow-highlight));
@@ -860,6 +918,96 @@ body {
     gap: 0.25rem;
 }
 
+/* ==================== Prize Rules Legend ==================== */
+.prize-rules-card {
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.2));
+    border: 2px solid hsl(var(--primary) / 0.2);
+}
+
+.prize-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.prize-rule-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: var(--radius);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.prize-rule-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.prize-rule-item.prize-level-1 {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(204, 0, 0, 0.05));
+    border-color: rgba(255, 0, 0, 0.3);
+}
+
+.prize-rule-item.prize-level-2 {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(247, 147, 30, 0.05));
+    border-color: rgba(255, 107, 53, 0.3);
+}
+
+.prize-rule-item.prize-level-3 {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 179, 0, 0.05));
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.prize-rule-item.prize-level-4 {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(56, 142, 60, 0.05));
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
+.prize-rule-item.prize-level-5 {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(25, 118, 210, 0.05));
+    border-color: rgba(33, 150, 243, 0.3);
+}
+
+.prize-rule-item.prize-level-6 {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(123, 31, 162, 0.05));
+    border-color: rgba(156, 39, 176, 0.3);
+}
+
+.prize-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.dark-theme .prize-icon {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.prize-details {
+    flex: 1;
+}
+
+.prize-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.25rem;
+}
+
+.prize-condition {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.4;
+}
+
 /* ==================== Chart Styles ==================== */
 #accuracyChart {
     max-width: 100%;
@@ -955,6 +1103,28 @@ body {
     .comparison-badges {
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .prize-rules-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .prize-rule-item {
+        padding: 0.75rem;
+    }
+
+    .prize-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.25rem;
+    }
+
+    .prize-name {
+        font-size: 0.9375rem;
+    }
+
+    .prize-condition {
+        font-size: 0.8125rem;
     }
 }
 

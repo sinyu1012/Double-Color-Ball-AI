@@ -81,6 +81,30 @@ const Components = {
     },
 
     /**
+     * 根据命中情况判断中奖等级
+     * @param {number} redHitCount - 红球命中数量
+     * @param {boolean} blueHit - 蓝球是否命中
+     * @returns {Object} 中奖等级信息 { level: string, name: string, color: string }
+     */
+    getPrizeLevel(redHitCount, blueHit) {
+        if (redHitCount === 6 && blueHit) {
+            return { level: '一等奖', name: '一等奖', color: 'prize-level-1', icon: '🏆' };
+        } else if (redHitCount === 6 && !blueHit) {
+            return { level: '二等奖', name: '二等奖', color: 'prize-level-2', icon: '🥇' };
+        } else if (redHitCount === 5 && blueHit) {
+            return { level: '三等奖', name: '三等奖', color: 'prize-level-3', icon: '🥈' };
+        } else if (redHitCount === 5 || (redHitCount === 4 && blueHit)) {
+            return { level: '四等奖', name: '四等奖', color: 'prize-level-4', icon: '🥉' };
+        } else if (redHitCount === 4 || (redHitCount === 3 && blueHit)) {
+            return { level: '五等奖', name: '五等奖', color: 'prize-level-5', icon: '🎖️' };
+        } else if ((redHitCount >= 1 && blueHit) || (redHitCount === 0 && blueHit)) {
+            return { level: '六等奖', name: '六等奖', color: 'prize-level-6', icon: '🎁' };
+        } else {
+            return { level: '未中奖', name: '未中奖', color: 'prize-level-none', icon: '○' };
+        }
+    },
+
+    /**
      * 创建预测卡片
      * @param {Object} prediction - 预测数据
      * @param {Object} latestResult - 最新开奖结果 (可选)
@@ -127,11 +151,23 @@ const Components = {
 
         card.appendChild(ballsDiv);
 
-        // 显示命中信息
-        if (hitInfo && hitInfo.totalHits > 0) {
+        // 显示命中信息和中奖等级
+        if (hitInfo) {
+            const prizeInfo = this.getPrizeLevel(hitInfo.redHitCount, hitInfo.blueHit);
+
             const hitInfoDiv = document.createElement('div');
             hitInfoDiv.className = 'hit-info';
-            hitInfoDiv.innerHTML = `<span class="badge badge-hit">命中 ${hitInfo.totalHits} 个号码</span>`;
+
+            const hitBadge = document.createElement('span');
+            hitBadge.className = 'badge badge-hit';
+            hitBadge.textContent = `命中 ${hitInfo.totalHits} 个号码`;
+
+            const prizeBadge = document.createElement('span');
+            prizeBadge.className = `prize-badge ${prizeInfo.color}`;
+            prizeBadge.innerHTML = `${prizeInfo.icon} ${prizeInfo.name}`;
+
+            hitInfoDiv.appendChild(hitBadge);
+            hitInfoDiv.appendChild(prizeBadge);
             card.appendChild(hitInfoDiv);
         }
 
@@ -358,8 +394,15 @@ const Components = {
 
         const accuracyBadge = this.createAccuracyBadge(prediction.hit_result);
 
+        // 添加中奖等级徽章
+        const prizeInfo = this.getPrizeLevel(prediction.hit_result.red_hit_count, prediction.hit_result.blue_hit);
+        const prizeBadge = document.createElement('span');
+        prizeBadge.className = `prize-badge ${prizeInfo.color}`;
+        prizeBadge.innerHTML = `${prizeInfo.icon} ${prizeInfo.name}`;
+
         badges.appendChild(groupBadge);
         badges.appendChild(accuracyBadge);
+        badges.appendChild(prizeBadge);
 
         header.appendChild(strategy);
         header.appendChild(badges);
