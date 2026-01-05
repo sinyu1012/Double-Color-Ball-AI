@@ -2,6 +2,481 @@
   "历史预测记录": "本文件保存已开奖期号的AI预测数据，用于对比和统计",
   "predictions_history": [
     {
+      "prediction_date": "2026-01-04",
+      "target_period": "26002",
+      "actual_result": {
+        "period": "26002",
+        "red_balls": [
+          "01",
+          "05",
+          "07",
+          "18",
+          "30",
+          "32"
+        ],
+        "blue_ball": "02",
+        "date": "2026-01-04"
+      },
+      "models": [
+        {
+          "model_id": "SSB-Team-001",
+          "model_name": "GPT-5",
+          "predictions": [
+            {
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "02",
+                "09",
+                "12",
+                "22",
+                "24",
+                "33"
+              ],
+              "blue_ball": "03",
+              "description": "基于5期加权频率，选择22(5期3次)、24(5期2次)等高频号；区间分布2-2-2；蓝球03(20期内4次)；总和102",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "05",
+                "12",
+                "19",
+                "25",
+                "28",
+                "30"
+              ],
+              "blue_ball": "02",
+              "description": "选择19(遗漏13期)、30(遗漏11期)等长遗漏号；奇偶3:3，大小3:3；蓝球02(遗漏12期)；总和119",
+              "hit_result": {
+                "red_hits": [
+                  "05",
+                  "30"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": true,
+                "total_hits": 3
+              }
+            },
+            {
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "03",
+                "09",
+                "14",
+                "20",
+                "27",
+                "31"
+              ],
+              "blue_ball": "12",
+              "description": "中频号为主，奇偶3:3，大小3:3；总和104；无连号；区间分布2-2-2；蓝球12(中频)",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "11",
+                "16",
+                "18",
+                "23",
+                "26",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "选择16(趋势分+42)、23(趋势分+37)等上升趋势号；蓝球04(当前遗漏8期，平均遗漏7.5期)",
+              "hit_result": {
+                "red_hits": [
+                  "18",
+                  "32"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            },
+            {
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "06",
+                "12",
+                "15",
+                "19",
+                "28",
+                "31"
+              ],
+              "blue_ball": "10",
+              "description": "12(综合分79，冷号+周期高)、19(综合分75)；奇偶3:3；总和111；来自热号2个、冷号1个、周期2个、平衡1个",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            }
+          ],
+          "best_group": 2,
+          "best_hit_count": 3
+        },
+        {
+          "model_id": "team_alpha_arena_v1",
+          "model_name": "Claude 4.5",
+          "predictions": [
+            {
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "02",
+                "06",
+                "13",
+                "22",
+                "24",
+                "30"
+              ],
+              "blue_ball": "08",
+              "description": "02(5期3次)、13(5期3次)、22(5期4次)为高频热号；区间分布2-2-2；蓝球08(20期内3次)；总和97",
+              "hit_result": {
+                "red_hits": [
+                  "30"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": false,
+                "total_hits": 1
+              }
+            },
+            {
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "07",
+                "16",
+                "21",
+                "25",
+                "28",
+                "31"
+              ],
+              "blue_ball": "11",
+              "description": "07(遗漏8期)、16(遗漏12期)、21(遗漏9期)等冷号；奇偶3:3，大小2:4；蓝球11(遗漏9期)；总和128",
+              "hit_result": {
+                "red_hits": [
+                  "07"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": false,
+                "total_hits": 1
+              }
+            },
+            {
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "05",
+                "12",
+                "15",
+                "23",
+                "27",
+                "32"
+              ],
+              "blue_ball": "06",
+              "description": "中频号为主，奇偶3:3，大小3:3；总和114；无连号；区间分布1-2-3；蓝球06(中频)",
+              "hit_result": {
+                "red_hits": [
+                  "05",
+                  "32"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            },
+            {
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "03",
+                "09",
+                "13",
+                "19",
+                "24",
+                "29"
+              ],
+              "blue_ball": "10",
+              "description": "13(趋势分+42)、24(趋势分+35)、29(趋势分+28)等上升趋势号；蓝球10(当前遗漏4期，平均遗漏8期)",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "02",
+                "09",
+                "13",
+                "22",
+                "28",
+                "33"
+              ],
+              "blue_ball": "15",
+              "description": "02(综合分85，热号)、13(综合分82，热号+周期)、22(综合分78，热号)；奇偶3:3；总和107；来自热号3个、周期2个、平衡1个",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            }
+          ],
+          "best_group": 3,
+          "best_hit_count": 2
+        },
+        {
+          "model_id": "Gemini2.5",
+          "model_name": "Gemini 2.5",
+          "predictions": [
+            {
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "02",
+                "06",
+                "11",
+                "12",
+                "13",
+                "14"
+              ],
+              "blue_ball": "10",
+              "description": "基于加权频率，选择02(5期3次)、06(5期3次)等高频号；区间分布2-3-1；蓝球10 (20期内出现3次)",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "07",
+                "10",
+                "16",
+                "21",
+                "29",
+                "32"
+              ],
+              "blue_ball": "07",
+              "description": "选择07(遗漏6期)、10(遗漏6期)等长遗漏号；奇偶3:3，大小3:3；蓝球07(遗漏16期)",
+              "hit_result": {
+                "red_hits": [
+                  "07",
+                  "32"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            },
+            {
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "04",
+                "07",
+                "13",
+                "18",
+                "26",
+                "30"
+              ],
+              "blue_ball": "10",
+              "description": "中频号为主，奇偶3:3，大小3:3；总和98；无连号；区间分布1-2-3；蓝球10(中频)",
+              "hit_result": {
+                "red_hits": [
+                  "07",
+                  "18",
+                  "30"
+                ],
+                "red_hit_count": 3,
+                "blue_hit": false,
+                "total_hits": 3
+              }
+            },
+            {
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "09",
+                "16",
+                "17",
+                "20",
+                "22",
+                "29"
+              ],
+              "blue_ball": "04",
+              "description": "选择09(趋势分+45)、16(趋势分+38)等上升趋势号；蓝球04(当前遗漏8期，平均遗漏7.5期)",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "09",
+                "12",
+                "14",
+                "18",
+                "26",
+                "29"
+              ],
+              "blue_ball": "06",
+              "description": "09(综合分82)、12(综合分76)；奇偶3:3；总和108；满足热号2个、冷号1个、周期2个的推荐",
+              "hit_result": {
+                "red_hits": [
+                  "18"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": false,
+                "total_hits": 1
+              }
+            }
+          ],
+          "best_group": 3,
+          "best_hit_count": 3
+        },
+        {
+          "model_id": "DeepseekR1",
+          "model_name": "DeepSeek R1",
+          "predictions": [
+            {
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "02",
+                "06",
+                "11",
+                "13",
+                "22",
+                "33"
+              ],
+              "blue_ball": "08",
+              "description": "选择02(5期3次)、06(5期2次)、13(5期2次)等高加权分号；区间分布2-2-2；蓝球08(20期内5次，3期内出现过)；总和87",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "07",
+                "16",
+                "20",
+                "21",
+                "25",
+                "29"
+              ],
+              "blue_ball": "09",
+              "description": "选择07(遗漏10期)、16(遗漏10期)、20(遗漏10期)等长遗漏号；奇偶3:3，大小3:3；尾数覆盖7个；蓝球09(遗漏8期)；总和118",
+              "hit_result": {
+                "red_hits": [
+                  "07"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": false,
+                "total_hits": 1
+              }
+            },
+            {
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "04",
+                "09",
+                "13",
+                "15",
+                "24",
+                "33"
+              ],
+              "blue_ball": "10",
+              "description": "中频号为主，奇偶3:3，大小3:3；总和98；无连号；区间分布1-3-2；蓝球10(30期内3次，中频)；AC值10",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "02",
+                "06",
+                "11",
+                "13",
+                "22",
+                "33"
+              ],
+              "blue_ball": "04",
+              "description": "选择02(趋势分+60)、06(趋势分+50)、11(趋势分+40)等上升趋势号；蓝球04(当前遗漏8期，历史平均遗漏约7.3期)",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "02",
+                "06",
+                "13",
+                "22",
+                "24",
+                "33"
+              ],
+              "blue_ball": "08",
+              "description": "02(综合分高，热号+周期)、13(综合分高，热号+周期)、22(综合分高，热号+平衡)；奇偶3:3；总和102；来自热号Top10(3个)、冷号Top10(1个)、周期Top10(3个)",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            }
+          ],
+          "best_group": 2,
+          "best_hit_count": 1
+        }
+      ]
+    },
+    {
       "prediction_date": "2025-12-30",
       "target_period": "25151",
       "actual_result": {
