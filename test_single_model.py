@@ -7,7 +7,7 @@ import sys
 from openai import OpenAI
 
 # API 配置（通过环境变量设置）
-BASE_URL = os.environ.get("AI_BASE_URL", "https://aihubmix.com/v1")
+BASE_URL = os.environ.get("AI_BASE_URL") or "https://aihubmix.com/v1"
 API_KEY = os.environ.get("AI_API_KEY")
 if not API_KEY:
     print("❌ 请设置环境变量 AI_API_KEY")
