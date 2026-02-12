@@ -31,6 +31,9 @@ jobs:
 
       - name: Run AI prediction generator
         run: python3 generate_ai_prediction.py
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
 
       - name: Check for changes
         id: check_changes

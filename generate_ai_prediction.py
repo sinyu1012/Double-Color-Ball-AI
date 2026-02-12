@@ -6,14 +6,18 @@
 
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from openai import OpenAI
 from typing import Dict, Any
 
 # ==================== 配置区 ====================
-# API 配置（请根据实际情况修改）
-BASE_URL = "https://aihubmix.com/v1"
-API_KEY = "REDACTED_API_KEY"
+# API 配置（通过环境变量设置）
+BASE_URL = os.environ.get("AI_BASE_URL", "https://aihubmix.com/v1")
+API_KEY = os.environ.get("AI_API_KEY")
+if not API_KEY:
+    print("❌ 请设置环境变量 AI_API_KEY")
+    sys.exit(1)
 
 # 模型配置列表
 MODELS = [

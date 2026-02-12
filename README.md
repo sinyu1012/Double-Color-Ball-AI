@@ -18,7 +18,7 @@
 #### macOS/Linux:
 ```bash
 # 进入项目目录
-cd /Users/sinyu/Documents/StudioProjects/Double-Color-Ball-AI
+cd Double-Color-Ball-AI
 
 # 运行启动脚本
 ./start_server.sh
@@ -120,11 +120,17 @@ python3 generate_ai_prediction.py
 pip install openai
 ```
 
-2. 编辑脚本配置（修改 `generate_ai_prediction.py` 中的 API 配置）：
-```python
-BASE_URL = "https://your-api-endpoint.com/v1"
-API_KEY = "sk-your-api-key"
+2. 设置环境变量：
+```bash
+export AI_API_KEY="your-api-key"
+export AI_BASE_URL="https://your-api-endpoint.com/v1"  # 可选，有默认值
 ```
+
+或创建 `.env` 文件（参考 `.env.example`）。
+
+3. 如使用 GitHub Actions 自动运行，需在仓库 Settings > Secrets and variables > Actions 中添加：
+   - `AI_API_KEY` — 你的 API Key
+   - `AI_BASE_URL` — API 端点地址（可选）
 
 详细说明：[AI_PREDICTION_GUIDE.md](./AI_PREDICTION_GUIDE.md)
 

@@ -16,7 +16,7 @@
 
 3. **部署项目**
    ```bash
-   cd /Users/sinyu/Documents/StudioProjects/Double-Color-Ball-AI
+   cd Double-Color-Ball-AI
    vercel
    ```
 

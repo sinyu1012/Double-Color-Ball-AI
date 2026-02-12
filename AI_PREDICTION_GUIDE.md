@@ -14,21 +14,14 @@ pip install openai
 
 ### 2. 配置 API
 
-编辑 `generate_ai_prediction.py` 文件，修改以下配置：
+通过环境变量设置 API 配置：
 
-```python
-# API 配置
-BASE_URL = "https://aihubmix.com/v1"  # 修改为你的 API endpoint
-API_KEY = "sk-xxx"  # 修改为你的 API key
-
-# 模型配置
-MODELS = [
-    {"id": "gpt-4o", "name": "GPT-5", "model_id": "SSB-Team-001"},
-    {"id": "claude-3-5-sonnet-20241022", "name": "Claude 4.5", "model_id": "team_alpha_arena_v1"},
-    {"id": "gemini-2.0-flash-exp", "name": "Gemini 2.5", "model_id": "Gemini2.5"},
-    {"id": "deepseek-chat", "name": "DeepSeek R1", "model_id": "DeepseekR1"}
-]
+```bash
+export AI_API_KEY="your-api-key"
+export AI_BASE_URL="https://aihubmix.com/v1"  # 可选，有默认值
 ```
+
+或创建 `.env` 文件（参考 `.env.example`）。
 
 ## 使用方法
 
@@ -226,7 +219,8 @@ jobs:
       - name: Generate AI predictions
         run: python3 generate_ai_prediction.py
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
 
       - name: Commit changes
         run: |

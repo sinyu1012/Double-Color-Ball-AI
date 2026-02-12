@@ -3,11 +3,15 @@
 
 import json
 import os
+import sys
 from openai import OpenAI
 
-# API 配置
-BASE_URL = "https://aihubmix.com/v1"
-API_KEY = "REDACTED_API_KEY"
+# API 配置（通过环境变量设置）
+BASE_URL = os.environ.get("AI_BASE_URL", "https://aihubmix.com/v1")
+API_KEY = os.environ.get("AI_API_KEY")
+if not API_KEY:
+    print("❌ 请设置环境变量 AI_API_KEY")
+    sys.exit(1)
 
 # 文件路径
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
