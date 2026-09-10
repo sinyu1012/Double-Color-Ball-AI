@@ -1,0 +1,229 @@
+name: Verify reliability repair candidate
+
+on:
+  push:
+    branches: [fix/reliability-and-audit-20260910]
+    paths: [.github/workflows/verify-reliability-candidate.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-reliability-repair
+  cancel-in-progress: false
+
+env:
+  CANDIDATE_TREE: 2e76d340ecdfa75ce13a463a272b8e4558746ecd
+  ORIGINAL_TREE: d559840651e581e063d2a61d3db011df5a638314
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/fix/reliability-and-audit-20260910'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      verified: ${{ steps.result.outputs.verified }}
+    steps:
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '22'
+      - name: Recover the reviewed Git tree and verify historical data preservation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import base64, hashlib, json, os, pathlib, urllib.request
+          root = pathlib.Path('candidate')
+          root.mkdir()
+          api = 'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+          def read(path):
+              request = urllib.request.Request(api + path, headers={
+                  'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                  'Accept': 'application/vnd.github+json',
+                  'User-Agent': 'reliability-repair-verifier'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.load(response)
+          tree = read('/git/trees/' + os.environ['CANDIDATE_TREE'] + '?recursive=1')
+          old = read('/git/trees/' + os.environ['ORIGINAL_TREE'] + '?recursive=1')
+          assert not tree.get('truncated') and not old.get('truncated'), 'Incomplete tree'
+          entries = {e['path']: e for e in tree['tree'] if e['type'] == 'blob'}
+          originals = {e['path']: e for e in old['tree'] if e['type'] == 'blob'}
+          for name in ['data/lottery_history.json', 'data/ai_predictions.json',
+                       'data/predictions_history.json', 'fetch_history/lottery_data.json']:
+              assert entries[name]['sha'] == originals[name]['sha'], 'Historical data modified: ' + name
+          for name, entry in entries.items():
+              path = pathlib.PurePosixPath(name)
+              assert not path.is_absolute() and '..' not in path.parts and '.git' not in path.parts
+              assert entry['mode'] in ('100644', '100755'), 'Unsupported file mode'
+              data = base64.b64decode(read('/git/blobs/' + entry['sha'])['content'])
+              digest = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+              assert digest == entry['sha'], 'Blob checksum mismatch'
+              target = root.joinpath(*path.parts)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(data)
+              target.chmod(0o755 if entry['mode'] == '100755' else 0o644)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('### Candidate recovered\nHistorical draw and prediction JSON files match the original Git blobs exactly.\n')
+          PY
+      - name: Install test dependencies without production credentials
+        working-directory: candidate
+        run: |
+          if [ -f requirements-dev.txt ]; then
+            python -m pip install -r requirements-dev.txt
+          elif [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          else
+            python -m pip install requests beautifulsoup4 openai
+          fi
+          python -m pip install pytest playwright
+          if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install --ignore-scripts; fi
+          python -m playwright install --with-deps chromium
+      - name: Python regression suite
+        working-directory: candidate
+        env:
+          AI_API_KEY: ''
+          AI_BASE_URL: http://127.0.0.1:9
+        run: |
+          python -m compileall -q -x 'node_modules|\.venv' .
+          python -m pytest -q --junitxml=python-results.xml
+      - name: JavaScript regression suite
+        working-directory: candidate
+        run: |
+          for source in js/*.js; do node --check "$source"; done
+          mapfile -t unit_tests < <(find . -type f \( -name '*.test.js' -o -name '*.test.cjs' -o -name '*.test.mjs' \) -not -path './node_modules/*' -not -path './.venv/*' -not -path '*/e2e/*' -not -name '*e2e*' | sort)
+          if [ ${#unit_tests[@]} -eq 0 ]; then
+            echo 'No JavaScript regression tests found in the candidate.' >&2
+            exit 1
+          fi
+          node --test "${unit_tests[@]}"
+      - name: Chromium interaction and failure-state regression
+        working-directory: candidate
+        run: |
+          python - <<'PY'
+          import http.server, json, pathlib, re, threading
+          from playwright.sync_api import sync_playwright
+          class Handler(http.server.SimpleHTTPRequestHandler):
+              def log_message(self, *_):
+                  pass
+          server = http.server.ThreadingHTTPServer(('127.0.0.1', 8765), Handler)
+          threading.Thread(target=server.serve_forever, daemon=True).start()
+          shots = pathlib.Path('browser-evidence')
+          shots.mkdir(exist_ok=True)
+          results = []
+          try:
+              with sync_playwright() as p:
+                  browser = p.chromium.launch()
+                  for width in [320, 390, 768, 1440]:
+                      page = browser.new_page(viewport={'width': width, 'height': 900})
+                      errors = []
+                      page.on('pageerror', lambda error: errors.append(str(error)))
+                      page.on('dialog', lambda dialog: dialog.dismiss())
+                      page.goto('http://127.0.0.1:8765', wait_until='networkidle')
+                      page.locator('#mainApp').wait_for(state='visible', timeout=20000)
+                      assert not page.locator('#loadingScreen').is_visible(), 'Loading overlay remains visible'
+                      assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 2'), 'Page overflows viewport'
+                      for tab in ['history', 'analysis', 'prediction', 'analysis', 'history', 'prediction']:
+                          page.locator('button[data-tab="' + tab + '"]:visible').first.click()
+                          page.wait_for_timeout(250)
+                      assert not errors, '\n'.join(errors)
+                      page.screenshot(path=str(shots / ('viewport-' + str(width) + '.png')), full_page=False)
+                      results.append({'case': 'navigation-' + str(width), 'passed': True})
+                      page.close()
+                  page = browser.new_page(viewport={'width': 390, 'height': 844})
+                  page.route('**/data/ai_predictions.json*', lambda route: route.fulfill(status=503, body='unavailable'))
+                  page.goto('http://127.0.0.1:8765', wait_until='networkidle')
+                  page.locator('#mainApp').wait_for(state='visible', timeout=20000)
+                  assert not page.locator('#loadingScreen').is_visible(), 'Prediction failure blocks the application'
+                  page.locator('button[data-tab="analysis"]:visible').first.click()
+                  page.screenshot(path=str(shots / 'prediction-unavailable.png'), full_page=False)
+                  results.append({'case': 'prediction-unavailable', 'passed': True})
+                  page.close()
+                  page = browser.new_page(viewport={'width': 390, 'height': 844})
+                  page.route(re.compile(r'https://[^/]+/.*chart.*', re.I), lambda route: route.abort())
+                  page.goto('http://127.0.0.1:8765', wait_until='networkidle')
+                  page.locator('#mainApp').wait_for(state='visible', timeout=20000)
+                  page.locator('button[data-tab="analysis"]:visible').first.click()
+                  page.wait_for_timeout(500)
+                  assert not page.locator('#loadingScreen').is_visible(), 'Optional chart failure blocks application'
+                  results.append({'case': 'optional-chart-unavailable', 'passed': True})
+                  page.close()
+                  browser.close()
+          finally:
+              server.shutdown()
+              (shots / 'results.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
+          PY
+      - name: Record verified outcome
+        id: result
+        run: |
+          echo 'verified=true' >> "$GITHUB_OUTPUT"
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ### Verification passed
+          Python and JavaScript regression suites, Chromium navigation at 320/390/768/1440 px, prediction-service failure, and optional-chart failure checks completed.
+          No production AI credentials were passed to the tests. A disabled provider API key is still an external blocker; these tests do not claim to restore live AI generation.
+          EOF
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reliability-regression-evidence
+          path: |
+            candidate/python-results.xml
+            candidate/browser-evidence/
+          if-no-files-found: warn
+          retention-days: 7
+
+  publish:
+    needs: verify
+    if: needs.verify.outputs.verified == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Publish only the verified candidate to the repair branch and open a PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          api = 'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+          branch = 'fix/reliability-and-audit-20260910'
+          expected = os.environ['GITHUB_SHA']
+          def call(path, method='GET', body=None):
+              request = urllib.request.Request(api + path, method=method,
+                  data=json.dumps(body).encode() if body is not None else None,
+                  headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                           'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json',
+                           'User-Agent': 'reliability-repair-publisher'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.load(response)
+          current = call('/git/ref/heads/' + branch)['object']['sha']
+          assert current == expected, 'Repair branch moved during verification; refusing to overwrite concurrent changes'
+          workflow_path = '.github/workflows/verify-reliability-candidate.yml'
+          workflow = call('/contents/' + workflow_path + '?ref=' + expected)
+          tree = call('/git/trees', 'POST', {'base_tree': os.environ['CANDIDATE_TREE'], 'tree': [
+              {'path': workflow_path, 'mode': '100644', 'type': 'blob', 'sha': workflow['sha']} ]})
+          commit = call('/git/commits', 'POST', {
+              'message': 'fix: validate predictions, preserve audit records and harden frontend failure states',
+              'tree': tree['sha'], 'parents': [expected]})
+          call('/git/refs/heads/' + branch, 'PATCH', {'sha': commit['sha'], 'force': False})
+          owner = os.environ['GITHUB_REPOSITORY'].split('/')[0]
+          existing = call('/pulls?state=open&head=' + owner + ':' + branch)
+          run_url = 'https://github.com/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID']
+          if existing:
+              pr = existing[0]
+          else:
+              pr = call('/pulls', 'POST', {
+                  'title': 'fix: reliable prediction pipeline, audited metrics and resilient UI',
+                  'head': branch, 'base': 'main',
+                  'body': '## Scope\n\nPublish the previously reviewed reliability repair tree after automated regression verification. Original draw and prediction JSON blobs are preserved.\n\n## Verification\n\nPython and JavaScript regression suites; Chromium navigation at 320, 390, 768 and 1440 px; prediction unavailable and optional chart unavailable cases. Run evidence: ' + run_url + '\n\n## External blocker\n\nThe provider previously returned HTTP 401 (`this key is not enabled`). This repair does not enable or replace account credentials and does not fabricate fresh AI predictions. No production AI keys were supplied to tests.\n\nMain has not been changed automatically.'})
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('\n### Published repair\nCommit: `' + commit['sha'] + '`\n\nPull request: ' + pr['html_url'] + '\n')
+          print('Published verified repair:', commit['sha'])
+          print('Pull request:', pr['html_url'])
+          PY
