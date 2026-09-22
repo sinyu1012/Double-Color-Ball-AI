@@ -512,6 +512,7 @@ class OfflineIntegrationTests(unittest.TestCase):
         def respond(**kwargs):
             self.assertIn(lottery["next_draw"]["next_period"], kwargs["messages"][1]["content"])
             self.assertIn("双色球候选组合选择 v4.0", kwargs["messages"][1]["content"])
+            self.assertEqual(kwargs["timeout"], 180.0 if kwargs["model"] == "gemini-2.5-flash" else 60.0)
             payload = json.dumps({"selections": choices})
             return SimpleNamespace(model=kwargs["model"] + "-resolved", choices=[
                 SimpleNamespace(message=SimpleNamespace(content="```json\n" + payload + "\n```")),
@@ -531,7 +532,10 @@ class OfflineIntegrationTests(unittest.TestCase):
             self.assertEqual(generator.main(), 0)
             saved = json.loads(current.read_text(encoding="utf-8"))
             self.assertEqual(saved["status"], "complete")
-            self.assertEqual(saved["generator_version"], "4.0")
+            self.assertEqual(saved["generator_version"], "4.1")
+            claude = next(model for model in saved["models"] if model["model_id"].startswith("claude-"))
+            self.assertEqual(claude["model_name"], "Claude Sonnet 4.6")
+            self.assertEqual(claude["requested_model"], "claude-sonnet-4-6")
             self.assertEqual(len(saved["models"]), len(generator.MODELS))
             for model in saved["models"]:
                 self.assertEqual(model["response_model"], model["requested_model"] + "-resolved")

@@ -18,8 +18,8 @@ BASE_URL = os.environ.get("AI_BASE_URL") or "https://aihubmix.com/v1"
 API_KEY = os.environ.get("AI_API_KEY")
 MODELS = [
     {"id": "gpt-4o", "name": "GPT-4o", "model_id": "gpt-4o"},
-    {"id": "claude-sonnet-4-5", "name": "Claude Sonnet 4.5", "model_id": "claude-sonnet-4-5"},
-    {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "model_id": "gemini-2.5-flash"},
+    {"id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6", "model_id": "claude-sonnet-4-6"},
+    {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "model_id": "gemini-2.5-flash", "timeout": 180.0},
     {"id": "deepseek-chat", "name": "DeepSeek Chat", "model_id": "deepseek-chat"},
 ]
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -27,7 +27,7 @@ LOTTERY_HISTORY_FILE = SCRIPT_DIR / "data/lottery_history.json"
 AI_PREDICTIONS_FILE = SCRIPT_DIR / "data/ai_predictions.json"
 PREDICTIONS_HISTORY_FILE = SCRIPT_DIR / "data/predictions_history.json"
 PROMPT_FILE = SCRIPT_DIR / "doc/prompt4.0.md"
-GENERATOR_VERSION = "4.0"
+GENERATOR_VERSION = "4.1"
 
 
 class PredictionValidationError(ValueError):
@@ -74,6 +74,7 @@ def call_ai_model(client, model_config, prompt):
             {"role": "user", "content": prompt},
         ],
         temperature=0.2,
+        timeout=model_config.get("timeout", 60.0),
     )
     if not response.choices or not isinstance(response.choices[0].message.content, str):
         raise PredictionValidationError("模型没有返回文本 JSON")
@@ -203,7 +204,8 @@ def call_ai_model_with_retry(client, model_config, prompt, plan, max_retries=2):
         raise ValueError("max_retries 必须为 0、1 或 2")
     accepted, feedback, previous, response_model = {}, [], None, None
     for attempt in range(max_retries + 1):
-        print(f"  ⏳ {model_config['name']} ({model_config['id']}) 请求 {attempt + 1}/{max_retries + 1}", flush=True)
+        print(f"  ⏳ {model_config['name']} ({model_config['id']}) 请求 {attempt + 1}/{max_retries + 1}，"
+              f"超时 {model_config.get('timeout', 60.0):g} 秒", flush=True)
         request_prompt = _repair_prompt(plan, accepted, feedback, previous, prompt) if feedback else prompt
         try:
             payload = call_ai_model(client, model_config, request_prompt)
