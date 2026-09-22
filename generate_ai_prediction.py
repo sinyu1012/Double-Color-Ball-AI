@@ -18,7 +18,7 @@ BASE_URL = os.environ.get("AI_BASE_URL") or "https://aihubmix.com/v1"
 API_KEY = os.environ.get("AI_API_KEY")
 MODELS = [
     {"id": "gpt-4o", "name": "GPT-4o", "model_id": "gpt-4o"},
-    {"id": "claude-3-5-sonnet-20241022", "name": "Claude 3.5 Sonnet", "model_id": "claude-3-5-sonnet-20241022"},
+    {"id": "claude-sonnet-4-5", "name": "Claude Sonnet 4.5", "model_id": "claude-sonnet-4-5"},
     {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "model_id": "gemini-2.5-flash"},
     {"id": "deepseek-chat", "name": "DeepSeek Chat", "model_id": "deepseek-chat"},
 ]
