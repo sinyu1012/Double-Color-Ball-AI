@@ -196,23 +196,27 @@ function renderAccuracyChart() {
 // 准备图表数据
 function prepareChartData() {
     const history = appData.predictionsHistory.predictions_history;
-    const labels = [];
-    const modelsData = {};
 
     // 反转以显示时间顺序
     const reversedHistory = [...history].reverse();
+    const labels = reversedHistory.map(record => record.target_period);
+    const series = new Map();
 
-    reversedHistory.forEach(record => {
-        labels.push(record.target_period);
-
+    reversedHistory.forEach((record, periodIndex) => {
+        const isSimulation = record.data_source === 'random_simulation';
         record.models.forEach(model => {
-            if (!modelsData[model.model_name]) {
-                modelsData[model.model_name] = [];
+            const key = JSON.stringify([isSimulation, model.model_name]);
+            if (!series.has(key)) {
+                series.set(key, {
+                    modelName: model.model_name,
+                    isSimulation,
+                    data: Array(labels.length).fill(null)
+                });
             }
 
-            // 找到最佳命中数
+            // 按期号对齐；缺失期保持空值，随机模拟不计入 AI 模型表现。
             const bestHit = Math.max(...model.predictions.map(p => p.hit_result?.total_hits || 0));
-            modelsData[model.model_name].push(bestHit);
+            series.get(key).data[periodIndex] = bestHit;
         });
     });
 
@@ -224,11 +228,13 @@ function prepareChartData() {
         'DeepSeek R1': '#f59e0b'
     };
 
-    const datasets = Object.keys(modelsData).map(modelName => ({
-        label: modelName,
-        data: modelsData[modelName],
-        borderColor: colors[modelName] || '#6b7280',
-        backgroundColor: colors[modelName] || '#6b7280',
+    const datasets = [...series.values()].map(({ modelName, isSimulation, data }) => ({
+        label: isSimulation ? `${modelName}（非实测）` : modelName,
+        data,
+        borderColor: isSimulation ? '#6b7280' : colors[modelName] || '#6b7280',
+        backgroundColor: isSimulation ? '#6b7280' : colors[modelName] || '#6b7280',
+        borderDash: isSimulation ? [6, 4] : [],
+        spanGaps: false,
         borderWidth: 3,
         pointRadius: 4,
         pointHoverRadius: 7,

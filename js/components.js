@@ -194,6 +194,7 @@ const Components = {
 
         const result = record.actual_result;
         if (!result) return card;
+        const isSimulation = record.data_source === 'random_simulation';
 
         // 卡片头部
         const header = document.createElement('div');
@@ -207,7 +208,7 @@ const Components = {
                 </div>
                 <div>
                     <h4 class="accuracy-header-title">第 ${result.period} 期</h4>
-                    <span class="accuracy-header-subtitle">命中回溯报告</span>
+                    <span class="accuracy-header-subtitle">${isSimulation ? '历史补录 · 非开奖前预测' : '命中回溯报告'}</span>
                 </div>
             </div>
             <span class="accuracy-header-date">${result.date}</span>
