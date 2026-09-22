@@ -140,6 +140,40 @@ def _retryable_api_error(error):
     )
 
 
+def _safe_error_text(value, limit=600):
+    text = str(value)
+    for secret in (os.environ.get("AI_API_KEY"), API_KEY):
+        if secret:
+            text = text.replace(secret, "[REDACTED]")
+    text = re.sub(r"(?i)Bearer\s+[^\s\"'<>]+", "Bearer [REDACTED]", text)
+    text = re.sub(r"\bsk-[A-Za-z0-9_-]+", "[REDACTED]", text)
+    return " ".join(text.split())[:limit]
+
+
+def _format_api_error(error):
+    """Keep provider diagnostics without logging credentials or full request bodies."""
+    parts = [type(error).__name__]
+    status = getattr(error, "status_code", None)
+    if type(status) is int:
+        parts.append(f"HTTP {status}")
+    request_id = getattr(error, "request_id", None)
+    if request_id:
+        parts.append("request_id=" + _safe_error_text(request_id, 120))
+    body = getattr(error, "body", None)
+    if isinstance(body, dict):
+        detail = body.get("error", body)
+        if isinstance(detail, dict):
+            for field in ("message", "type", "code", "param"):
+                value = detail.get(field)
+                if isinstance(value, (str, int, float)):
+                    parts.append(f"{field}=" + _safe_error_text(value))
+        elif isinstance(detail, str):
+            parts.append("message=" + _safe_error_text(detail))
+    else:
+        parts.append("message=" + _safe_error_text(body if isinstance(body, str) else error))
+    return "; ".join(parts)
+
+
 def _repair_prompt(plan, accepted, errors, previous, original_prompt):
     pending = sorted(set(plan["options"]) - set(accepted))
     locked = [next(c for c in plan["options"][gid] if c["candidate_id"] == cid)
@@ -169,6 +203,7 @@ def call_ai_model_with_retry(client, model_config, prompt, plan, max_retries=2):
         raise ValueError("max_retries 必须为 0、1 或 2")
     accepted, feedback, previous, response_model = {}, [], None, None
     for attempt in range(max_retries + 1):
+        print(f"  ⏳ {model_config['name']} ({model_config['id']}) 请求 {attempt + 1}/{max_retries + 1}", flush=True)
         request_prompt = _repair_prompt(plan, accepted, feedback, previous, prompt) if feedback else prompt
         try:
             payload = call_ai_model(client, model_config, request_prompt)
@@ -194,10 +229,10 @@ def call_ai_model_with_retry(client, model_config, prompt, plan, max_retries=2):
         except Exception as error:
             if not _retryable_api_error(error) or attempt == max_retries:
                 raise
-            print(f"  ⚠️ {model_config['name']} 暂时不可用，第 {attempt + 1} 次重试")
+            print(f"  ⚠️ {model_config['name']} 第 {attempt + 1} 次请求失败，将重试：{_format_api_error(error)}", flush=True)
             time.sleep(2 ** attempt)
             continue
-        print(f"  ⚠️ {model_config['name']} 第 {attempt + 1} 次校验失败：{'；'.join(feedback)}")
+        print(f"  ⚠️ {model_config['name']} 第 {attempt + 1} 次校验失败：{'；'.join(feedback)}", flush=True)
     raise PredictionValidationError(f"{model_config['name']} 重试耗尽：{'；'.join(feedback)}")
 
 
@@ -308,11 +343,14 @@ def generate_predictions():
                 model = call_ai_model_with_retry(client, config, prompt, plan)
                 model["target_period"], model["prediction_date"] = target_period, target_date
                 models.append(model)
+                print(f"  ✅ {config['name']} 5 组候选全部通过校验", flush=True)
             except Exception as error:
+                detail = _format_api_error(error)
+                print(f"  ❌ {config['name']}：{detail}", flush=True)
                 status = getattr(error, "status_code", None)
                 if status in (401, 403):
-                    raise RuntimeError(f"API 鉴权失败（{status}），请检查 AI_API_KEY/AI_BASE_URL") from error
-                failures.append(f"{config['id']}: {type(error).__name__}")
+                    raise RuntimeError(f"API 鉴权失败（{status}），请检查 AI_API_KEY/AI_BASE_URL；{detail}") from error
+                failures.append(f"{config['id']}: {detail}")
     finally:
         close = getattr(client, "close", None)
         if callable(close):

@@ -64,9 +64,11 @@ def prediction_document(period="26110"):
 
 
 class APIStatusError(Exception):
-    def __init__(self, status_code):
+    def __init__(self, status_code, body=None, request_id=None):
         super().__init__(f"HTTP {status_code}")
         self.status_code = status_code
+        self.body = body
+        self.request_id = request_id
 
 
 class SelectionValidationTests(unittest.TestCase):
@@ -233,7 +235,7 @@ class ModelRetryTests(unittest.TestCase):
         self.assertEqual(groups[5]["red_balls"], self.plan["options"][5][1]["red_balls"])
 
     def test_authentication_and_permission_errors_are_not_retried(self):
-        for status in (401, 403):
+        for status in (400, 401, 403):
             with self.subTest(status=status):
                 with mock.patch.object(generator, "call_ai_model", side_effect=APIStatusError(status)) as call:
                     with self.assertRaises(Exception):
@@ -445,11 +447,34 @@ class PersistenceTests(unittest.TestCase):
     def test_partial_model_failure_is_not_reported_as_full_success(self):
         self.generation_context()
         model_result = prediction_document()["models"][0]
+        before = self.current.read_bytes()
+        error = APIStatusError(400, body={"error": {
+            "message": "Missing required parameter: max_tokens", "param": "max_tokens",
+        }}, request_id="request-test-400")
         with mock.patch.object(generator, "call_ai_model_with_retry",
-                               side_effect=[model_result, RuntimeError("second model unavailable")]) as call:
-            with self.assertRaises(RuntimeError):
+                               side_effect=[model_result, error]) as call:
+            with self.assertRaisesRegex(RuntimeError, "HTTP 400.*request-test-400.*max_tokens"):
                 generator.generate_predictions()
         self.assertEqual(call.call_count, 2)
+        self.assertEqual(self.current.read_bytes(), before)
+
+    def test_api_failure_logs_redact_credentials_and_exclude_unrelated_body_fields(self):
+        self.generation_context()
+        secret = "test-private-api-key"
+        error = APIStatusError(400, body={"error": {
+            "message": f"Invalid request\n{secret} Bearer upstream-private-token sk-provider-private-token",
+            "code": secret, "param": "model", "headers": "private-header",
+        }, "request": "private-request"}, request_id=secret)
+        with mock.patch.dict(generator.os.environ, {"AI_API_KEY": secret}), \
+                mock.patch.object(generator, "call_ai_model_with_retry", side_effect=error):
+            with self.assertRaises(RuntimeError) as caught:
+                generator.generate_predictions()
+        output = self.output.getvalue() + str(caught.exception)
+        for private in (secret, "upstream-private-token", "sk-provider-private-token",
+                        "private-header", "private-request"):
+            self.assertNotIn(private, output)
+        self.assertIn("[REDACTED]", output)
+        self.assertIn("param=model", output)
 
     def test_successful_same_input_rerun_is_idempotent_without_another_api_call(self):
         self.generation_context()

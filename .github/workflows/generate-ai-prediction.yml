@@ -30,7 +30,7 @@ jobs:
           pip install openai
 
       - name: Run AI prediction generator
-        run: python3 generate_ai_prediction.py
+        run: python3 -u generate_ai_prediction.py
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
