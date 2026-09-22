@@ -133,9 +133,13 @@ class ModelRetryTests(unittest.TestCase):
         self.redirect = redirect_stdout(self.output)
         self.redirect.__enter__()
         self.addCleanup(self.redirect.__exit__, None, None, None)
+        self.prompt = generator.load_prompt_template().format(
+            target_period="26110", target_date="2026-09-22",
+            candidate_plan=json.dumps(self.plan, ensure_ascii=False),
+        )
 
     def run_model(self, max_retries=2):
-        return generator.call_ai_model_with_retry(object(), MODEL, "候选方案", self.plan,
+        return generator.call_ai_model_with_retry(object(), MODEL, self.prompt, self.plan,
                                                   max_retries=max_retries)
 
     def test_canonical_fields_come_from_configuration_and_precomputed_candidates(self):
@@ -174,6 +178,15 @@ class ModelRetryTests(unittest.TestCase):
         self.assertEqual(groups[5]["red_balls"], self.plan["options"][5][1]["red_balls"])
         retry_prompt = call.call_args_list[1].args[2]
         self.assertNotEqual(retry_prompt, call.call_args_list[0].args[2])
+        self.assertTrue(retry_prompt.startswith(self.prompt + "\n\n"))
+        context = json.loads(retry_prompt.split("修复上下文：\n", 1)[1])
+        self.assertEqual(context["pending_group_ids"], [5])
+        self.assertEqual(set(context["candidates"]), {"5"})
+        self.assertEqual(context["locked_groups"], [
+            {key: self.plan["options"][gid][0][key]
+             for key in ("group_id", "candidate_id", "red_balls", "blue_ball")}
+            for gid in range(1, 5)
+        ])
         self.assertIn("g1-c1", retry_prompt)
         self.assertIn("invented", retry_prompt)
 
@@ -183,7 +196,12 @@ class ModelRetryTests(unittest.TestCase):
             result = self.run_model()
         self.assertEqual(call.call_count, 2)
         self.assertEqual(len(result["predictions"]), 5)
-        self.assertIn("JSON", call.call_args_list[1].args[2])
+        retry_prompt = call.call_args_list[1].args[2]
+        self.assertIn("JSON", retry_prompt)
+        self.assertTrue(retry_prompt.startswith(self.prompt + "\n\n"))
+        context = json.loads(retry_prompt.split("修复上下文：\n", 1)[1])
+        self.assertEqual(context["pending_group_ids"], [1, 2, 3, 4, 5])
+        self.assertEqual(context["locked_groups"], [])
 
     def test_malformed_response_is_retried_before_any_normalization(self):
         for malformed in (None, [], {"selections": None}):
@@ -202,6 +220,13 @@ class ModelRetryTests(unittest.TestCase):
                                             selections([5], candidate_index=2)]) as call:
             result = self.run_model()
         self.assertEqual(call.call_count, 3)
+        for retry_call in call.call_args_list[1:]:
+            retry_prompt = retry_call.args[2]
+            self.assertEqual(retry_prompt.count(self.prompt), 1)
+            context = json.loads(retry_prompt.split("修复上下文：\n", 1)[1])
+            self.assertEqual(context["pending_group_ids"], [5])
+            self.assertEqual([group["candidate_id"] for group in context["locked_groups"]],
+                             [f"g{gid}-c1" for gid in range(1, 5)])
         groups = {group["group_id"]: group for group in result["predictions"]}
         for group_id in range(1, 5):
             self.assertEqual(groups[group_id]["red_balls"], self.plan["options"][group_id][0]["red_balls"])
@@ -461,6 +486,7 @@ class OfflineIntegrationTests(unittest.TestCase):
 
         def respond(**kwargs):
             self.assertIn(lottery["next_draw"]["next_period"], kwargs["messages"][1]["content"])
+            self.assertIn("双色球候选组合选择 v4.0", kwargs["messages"][1]["content"])
             payload = json.dumps({"selections": choices})
             return SimpleNamespace(model=kwargs["model"] + "-resolved", choices=[
                 SimpleNamespace(message=SimpleNamespace(content="```json\n" + payload + "\n```")),
@@ -480,6 +506,7 @@ class OfflineIntegrationTests(unittest.TestCase):
             self.assertEqual(generator.main(), 0)
             saved = json.loads(current.read_text(encoding="utf-8"))
             self.assertEqual(saved["status"], "complete")
+            self.assertEqual(saved["generator_version"], "4.0")
             self.assertEqual(len(saved["models"]), len(generator.MODELS))
             for model in saved["models"]:
                 self.assertEqual(model["response_model"], model["requested_model"] + "-resolved")
