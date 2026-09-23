@@ -6,7 +6,7 @@
     <title>双色球 AI 预测</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=20251124c">
+    <link rel="stylesheet" href="css/style.css?v=20260922a">
 </head>
 <body>
     <!-- Loading Screen -->
@@ -366,20 +366,27 @@
                 </div>
 
                 <!-- Chart: Hit Performance -->
-                <div class="chart-container">
+                <div class="chart-container accuracy-chart">
                     <div class="chart-header">
                         <div class="chart-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+                                <path d="M3 3v18h18"/><path d="m7 14 4-4 4 3 6-8"/>
                             </svg>
                         </div>
                         <div class="chart-title-wrapper">
                             <h3>历史命中表现趋势</h3>
-                            <p class="chart-description">各期最佳组合的总命中数（红+蓝）；补录数据独立展示</p>
+                            <p class="chart-description">红球 + 蓝球 · 每期最佳组合的命中表现</p>
                         </div>
+                        <span class="accuracy-chart-count" id="accuracyChartCount"></span>
                     </div>
+                    <div class="accuracy-chart-legend" id="accuracyChartLegend" role="group" aria-label="筛选趋势图数据系列"></div>
+                    <div class="accuracy-chart-axis-label" aria-hidden="true">命中球数</div>
                     <div class="chart-canvas">
-                        <canvas id="accuracyChart"></canvas>
+                        <canvas id="accuracyChart" role="img" aria-label="历史命中表现趋势，展示各期最佳组合命中球数。详细数据见下方命中记录。"></canvas>
+                    </div>
+                    <div class="accuracy-chart-footer">
+                        <span id="accuracyChartRange"></span>
+                        <span>点击图例筛选 · 轻触节点查看详情</span>
                     </div>
                 </div>
 
@@ -428,6 +435,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/data-loader.js?v=20251124c"></script>
     <script src="js/components.js?v=20251124c"></script>
-    <script src="js/app.js?v=20251124c"></script>
+    <script src="js/app.js?v=20260922a"></script>
 </body>
 </html>

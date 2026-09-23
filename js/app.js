@@ -156,9 +156,15 @@ function renderAccuracyChart() {
 
     // 准备图表数据
     const chartData = prepareChartData();
+    const fontFamily = getComputedStyle(chartEl).fontFamily;
+    document.getElementById('accuracyChartCount').textContent = `${chartData.labels.length} 期记录`;
+    document.getElementById('accuracyChartRange').textContent = chartData.labels.length
+        ? `${chartData.labels[0]} — ${chartData.labels.at(-1)} 期`
+        : '暂无历史记录';
 
     // 使用Chart.js渲染
-    new Chart(chartEl, {
+    Chart.getChart(chartEl)?.destroy();
+    const chart = new Chart(chartEl, {
         type: 'line',
         data: {
             labels: chartData.labels,
@@ -167,29 +173,105 @@ function renderAccuracyChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            onResize: (chart, size) => {
+                chart.options.scales.x.ticks.maxTicksLimit = size.width < 600 ? 5 : 10;
+            },
+            animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? false : { duration: 500 },
+            interaction: { mode: 'index', intersect: false },
+            layout: { padding: { top: 8, right: 8 } },
             plugins: {
                 legend: {
-                    position: 'top',
+                    display: false
                 },
                 tooltip: {
-                    mode: 'index',
-                    intersect: false,
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                    titleColor: '#1e293b',
+                    bodyColor: '#475569',
+                    borderColor: '#e0e7ff',
+                    borderWidth: 1,
+                    cornerRadius: 12,
+                    padding: 14,
+                    titleFont: { family: fontFamily, size: 13, weight: '600' },
+                    bodyFont: { family: fontFamily, size: 12 },
+                    titleMarginBottom: 10,
+                    bodySpacing: 8,
+                    boxWidth: 7,
+                    boxHeight: 7,
+                    boxPadding: 6,
+                    usePointStyle: true,
+                    callbacks: {
+                        title: items => `第 ${items[0].label} 期`,
+                        label: item => ` ${item.dataset.label}   ${item.parsed.y} 球`,
+                        labelColor: item => ({
+                            borderColor: item.dataset.borderColor,
+                            backgroundColor: item.dataset.borderColor
+                        })
+                    }
                 }
             },
             scales: {
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { family: fontFamily, size: 11 },
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 10,
+                        padding: 12
+                    }
+                },
                 y: {
                     beginAtZero: true,
                     max: 7,
+                    border: { display: false, dash: [4, 5] },
+                    grid: { color: '#edf0f7', drawTicks: false },
                     ticks: {
-                        stepSize: 1
-                    },
-                    title: {
-                        display: true,
-                        text: '命中球数'
+                        stepSize: 1,
+                        color: '#94a3b8',
+                        font: { family: fontFamily, size: 11 },
+                        padding: 12
                     }
                 }
             }
-        }
+        },
+        plugins: [{
+            id: 'accuracyHoverGuide',
+            beforeDatasetsDraw(chart) {
+                const [active] = chart.tooltip?.getActiveElements() || [];
+                if (!active || chart.tooltip.opacity === 0) return;
+                const { ctx, chartArea } = chart;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(active.element.x, chartArea.top);
+                ctx.lineTo(active.element.x, chartArea.bottom);
+                ctx.strokeStyle = '#c7d2fe';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }]
+    });
+
+    const legend = document.getElementById('accuracyChartLegend');
+    legend.replaceChildren();
+    chart.data.datasets.forEach((dataset, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = dataset.label;
+        button.style.setProperty('--series-color', dataset.borderColor);
+        button.setAttribute('aria-pressed', 'true');
+        button.setAttribute('aria-controls', 'accuracyChart');
+        button.addEventListener('click', () => {
+            const visible = !chart.isDatasetVisible(index);
+            chart.setDatasetVisibility(index, visible);
+            button.setAttribute('aria-pressed', String(visible));
+            chart.update();
+        });
+        legend.appendChild(button);
     });
 }
 
@@ -224,22 +306,49 @@ function prepareChartData() {
     const colors = {
         'GPT-5': '#10b981',
         'Claude 4.5': '#8b5cf6',
+        'Gemini 2.5 Pro': '#06b6d4',
         'Gemini 2.5': '#3b82f6',
-        'DeepSeek R1': '#f59e0b'
+        'DeepSeek R1': '#f59e0b',
+        'GPT5': '#f43f5e',
+        '历史补录': '#6366f1'
     };
 
-    const datasets = [...series.values()].map(({ modelName, isSimulation, data }) => ({
-        label: isSimulation ? `${modelName}（非实测）` : modelName,
-        data,
-        borderColor: isSimulation ? '#6b7280' : colors[modelName] || '#6b7280',
-        backgroundColor: isSimulation ? '#6b7280' : colors[modelName] || '#6b7280',
-        borderDash: isSimulation ? [6, 4] : [],
-        spanGaps: false,
-        borderWidth: 3,
-        pointRadius: 4,
-        pointHoverRadius: 7,
-        tension: 0.1
-    }));
+    const palette = Object.values(colors);
+    const datasets = [...series.values()].map(({ modelName, isSimulation, data }, index) => {
+        const color = colors[modelName] || palette[index % palette.length];
+        return {
+            label: isSimulation ? `${modelName}（非实测）` : modelName,
+            data,
+            borderColor: color,
+            backgroundColor: context => {
+                const { ctx, chartArea } = context.chart;
+                if (!chartArea) return `${color}0a`;
+                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, `${color}24`);
+                gradient.addColorStop(1, `${color}00`);
+                return gradient;
+            },
+            fill: 'origin',
+            spanGaps: false,
+            borderWidth: 2,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            pointBackgroundColor: color,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
+            pointRadius: context => {
+                const i = context.dataIndex;
+                // 保留孤立记录的圆点，避免只有一期的模型在图中消失。
+                if (data[i - 1] == null && data[i + 1] == null) return 3.5;
+                return context.chart.width < 600 ? 0 : 2;
+            },
+            pointHoverRadius: 5,
+            pointHoverBorderWidth: 2.5,
+            pointHitRadius: 10,
+            cubicInterpolationMode: 'monotone',
+            tension: 0.25
+        };
+    });
 
     return { labels, datasets };
 }

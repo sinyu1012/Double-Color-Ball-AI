@@ -1407,6 +1407,166 @@ body::after {
     width: 100%;
 }
 
+/* History trend card */
+.accuracy-chart {
+    padding: 1.75rem 2rem 1.25rem;
+    border-color: #e6eaf5;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, #f7f8ff 0, #fff 32%);
+    box-shadow: 0 4px 24px -8px rgb(79 70 229 / 0.08);
+}
+
+.accuracy-chart .chart-header {
+    gap: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.accuracy-chart .chart-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #e0e5ff;
+    border-radius: 14px;
+    background: #eef2ff;
+    color: #6366f1;
+}
+
+.accuracy-chart .chart-title-wrapper {
+    min-width: 0;
+}
+
+.accuracy-chart .chart-description {
+    margin-top: 0.25rem;
+    color: var(--slate-500);
+}
+
+.accuracy-chart-count {
+    margin-left: auto;
+    padding: 0.375rem 0.75rem;
+    flex-shrink: 0;
+    border: 1px solid #e0e7ff;
+    border-radius: 999px;
+    background: #f5f6ff;
+    color: #6366f1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.accuracy-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.accuracy-chart-legend button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 36px;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--slate-600);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 150ms, border-color 150ms, opacity 150ms;
+}
+
+.accuracy-chart-legend button::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--series-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--series-color) 10%, transparent);
+}
+
+.accuracy-chart-legend button:hover {
+    background: #f4f6fc;
+    border-color: #e6eaf5;
+}
+
+.accuracy-chart-legend button:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.accuracy-chart-legend button[aria-pressed="false"] {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+.accuracy-chart-axis-label {
+    margin-bottom: 0.625rem;
+    color: var(--slate-400);
+    font-size: 0.6875rem;
+}
+
+.accuracy-chart .chart-canvas {
+    position: relative;
+    height: 300px;
+}
+
+.accuracy-chart-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f2f8;
+    color: var(--slate-400);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 639px) {
+    .accuracy-chart {
+        padding: 1.25rem 1rem 1rem;
+        border-radius: 1.25rem;
+    }
+
+    .accuracy-chart .chart-header {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .accuracy-chart .chart-title-wrapper h3 {
+        font-size: 1rem;
+    }
+
+    .accuracy-chart .chart-description {
+        font-size: 0.6875rem;
+    }
+
+    .accuracy-chart-count {
+        margin-left: 0;
+    }
+
+    .accuracy-chart-legend {
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .accuracy-chart-legend button {
+        min-height: 40px;
+        padding: 0.375rem 0.5rem;
+        font-size: 0.6875rem;
+    }
+
+    .accuracy-chart .chart-canvas {
+        height: 260px;
+    }
+}
+
 /* ==================== Footer ==================== */
 .footer {
     position: relative;
