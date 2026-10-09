@@ -2,6 +2,534 @@
   "历史预测记录": "本文件保存已开奖期号的预测与历史补录数据。data_source=random_simulation 的记录为开奖后补录，不代表 AI 模型实测表现。",
   "predictions_history": [
     {
+      "prediction_date": "2026-10-08",
+      "target_period": "26115",
+      "actual_result": {
+        "period": "26115",
+        "red_balls": [
+          "04",
+          "13",
+          "14",
+          "18",
+          "22",
+          "24"
+        ],
+        "blue_ball": "03",
+        "date": "2026-10-08"
+      },
+      "models": [
+        {
+          "model_id": "gpt-4o",
+          "model_name": "GPT-4o",
+          "requested_model": "gpt-4o",
+          "response_model": "gpt-4o-2024-11-20",
+          "validation_status": "passed",
+          "predictions": [
+            {
+              "candidate_id": "1-03",
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "04",
+                "11",
+                "14",
+                "20",
+                "24",
+                "30"
+              ],
+              "blue_ball": "04",
+              "description": "04热度39、调整分39.0；区间2-2-2；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [
+                  "04",
+                  "14",
+                  "24"
+                ],
+                "red_hit_count": 3,
+                "blue_hit": false,
+                "total_hits": 3
+              }
+            },
+            {
+              "candidate_id": "2-07",
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "08",
+                "10",
+                "15",
+                "21",
+                "23",
+                "28"
+              ],
+              "blue_ball": "02",
+              "description": "08遗漏13期；奇偶3:3、大小3:3；尾数5种；蓝球02遗漏15期",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "3-05",
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "01",
+                "07",
+                "15",
+                "19",
+                "28",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "奇偶4:2、大小3:3；和值102、连号0对；区间2-2-2；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "4-07",
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "07",
+                "18",
+                "20",
+                "23",
+                "29",
+                "32"
+              ],
+              "blue_ball": "03",
+              "description": "07趋势+35.0、周期分+35.0；蓝球03遗漏10期、平均空期12.3期",
+              "hit_result": {
+                "red_hits": [
+                  "18"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": true,
+                "total_hits": 2
+              }
+            },
+            {
+              "candidate_id": "5-08",
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "02",
+                "07",
+                "14",
+                "21",
+                "29",
+                "31"
+              ],
+              "blue_ball": "04",
+              "description": "02综合46.9；奇偶4:2、大小3:3；和值104；蓝球04综合59.6",
+              "adjustments": [
+                "红球原候选池8球不足8个合法组合，按策略得分降序扩池至11球；硬约束保持不变"
+              ],
+              "hit_result": {
+                "red_hits": [
+                  "14"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": false,
+                "total_hits": 1
+              }
+            }
+          ],
+          "target_period": "26115",
+          "prediction_date": "2026-10-08",
+          "best_group": 1,
+          "best_hit_count": 3
+        },
+        {
+          "model_id": "claude-sonnet-4-6",
+          "model_name": "Claude Sonnet 4.6",
+          "requested_model": "claude-sonnet-4-6",
+          "response_model": "claude-sonnet-4-6",
+          "validation_status": "passed",
+          "predictions": [
+            {
+              "candidate_id": "1-03",
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "04",
+                "11",
+                "14",
+                "20",
+                "24",
+                "30"
+              ],
+              "blue_ball": "04",
+              "description": "04热度39、调整分39.0；区间2-2-2；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [
+                  "04",
+                  "14",
+                  "24"
+                ],
+                "red_hit_count": 3,
+                "blue_hit": false,
+                "total_hits": 3
+              }
+            },
+            {
+              "candidate_id": "2-01",
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "08",
+                "10",
+                "21",
+                "23",
+                "25",
+                "28"
+              ],
+              "blue_ball": "02",
+              "description": "08遗漏13期；奇偶3:3、大小4:2；尾数5种；蓝球02遗漏15期",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "3-02",
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "01",
+                "07",
+                "15",
+                "17",
+                "28",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "奇偶4:2、大小3:3；和值100、连号0对；区间2-2-2；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "4-01",
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "03",
+                "07",
+                "20",
+                "23",
+                "29",
+                "32"
+              ],
+              "blue_ball": "03",
+              "description": "03趋势+10.0、周期分+30.0；蓝球03遗漏10期、平均空期12.3期",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": true,
+                "total_hits": 1
+              }
+            },
+            {
+              "candidate_id": "5-02",
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "02",
+                "07",
+                "14",
+                "21",
+                "29",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "02综合46.9；奇偶3:3、大小3:3；和值105；蓝球04综合59.6",
+              "hit_result": {
+                "red_hits": [
+                  "14"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": false,
+                "total_hits": 1
+              }
+            }
+          ],
+          "target_period": "26115",
+          "prediction_date": "2026-10-08",
+          "best_group": 1,
+          "best_hit_count": 3
+        },
+        {
+          "model_id": "gemini-2.5-flash",
+          "model_name": "Gemini 2.5 Flash",
+          "requested_model": "gemini-2.5-flash",
+          "response_model": "gemini-2.5-flash",
+          "validation_status": "passed",
+          "predictions": [
+            {
+              "candidate_id": "1-01",
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "04",
+                "06",
+                "11",
+                "14",
+                "20",
+                "30"
+              ],
+              "blue_ball": "04",
+              "description": "04热度39、调整分39.0；区间3-2-1；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [
+                  "04",
+                  "14"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            },
+            {
+              "candidate_id": "2-02",
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "02",
+                "08",
+                "10",
+                "21",
+                "23",
+                "25"
+              ],
+              "blue_ball": "02",
+              "description": "02遗漏4期；奇偶3:3、大小3:3；尾数6种；蓝球02遗漏15期",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "3-03",
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "01",
+                "07",
+                "12",
+                "21",
+                "27",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "奇偶4:2、大小3:3；和值100、连号0对；区间2-2-2；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "4-02",
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "03",
+                "07",
+                "18",
+                "23",
+                "29",
+                "32"
+              ],
+              "blue_ball": "03",
+              "description": "03趋势+10.0、周期分+30.0；蓝球03遗漏10期、平均空期12.3期",
+              "hit_result": {
+                "red_hits": [
+                  "18"
+                ],
+                "red_hit_count": 1,
+                "blue_hit": true,
+                "total_hits": 2
+              }
+            },
+            {
+              "candidate_id": "5-03",
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "04",
+                "07",
+                "14",
+                "21",
+                "26",
+                "29"
+              ],
+              "blue_ball": "04",
+              "description": "04综合52.4；奇偶3:3、大小3:3；和值101；蓝球04综合59.6",
+              "adjustments": [
+                "红球原候选池8球不足8个合法组合，按策略得分降序扩池至9球；硬约束保持不变"
+              ],
+              "hit_result": {
+                "red_hits": [
+                  "04",
+                  "14"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            }
+          ],
+          "target_period": "26115",
+          "prediction_date": "2026-10-08",
+          "best_group": 1,
+          "best_hit_count": 2
+        },
+        {
+          "model_id": "deepseek-chat",
+          "model_name": "DeepSeek Chat",
+          "requested_model": "deepseek-chat",
+          "response_model": "deepseek-flash",
+          "validation_status": "passed",
+          "predictions": [
+            {
+              "candidate_id": "1-01",
+              "group_id": 1,
+              "strategy": "增强型热号追随者",
+              "red_balls": [
+                "04",
+                "06",
+                "11",
+                "14",
+                "20",
+                "30"
+              ],
+              "blue_ball": "04",
+              "description": "04热度39、调整分39.0；区间3-2-1；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [
+                  "04",
+                  "14"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            },
+            {
+              "candidate_id": "2-01",
+              "group_id": 2,
+              "strategy": "增强型冷号逆向者",
+              "red_balls": [
+                "08",
+                "10",
+                "21",
+                "23",
+                "25",
+                "28"
+              ],
+              "blue_ball": "02",
+              "description": "08遗漏13期；奇偶3:3、大小4:2；尾数5种；蓝球02遗漏15期",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "3-01",
+              "group_id": 3,
+              "strategy": "增强型平衡策略师",
+              "red_balls": [
+                "01",
+                "03",
+                "15",
+                "21",
+                "28",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "奇偶4:2、大小3:3；和值100、连号0对；区间2-2-2；蓝球04近20期3次",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": false,
+                "total_hits": 0
+              }
+            },
+            {
+              "candidate_id": "4-01",
+              "group_id": 4,
+              "strategy": "增强型周期理论家",
+              "red_balls": [
+                "03",
+                "07",
+                "20",
+                "23",
+                "29",
+                "32"
+              ],
+              "blue_ball": "03",
+              "description": "03趋势+10.0、周期分+30.0；蓝球03遗漏10期、平均空期12.3期",
+              "hit_result": {
+                "red_hits": [],
+                "red_hit_count": 0,
+                "blue_hit": true,
+                "total_hits": 1
+              }
+            },
+            {
+              "candidate_id": "5-01",
+              "group_id": 5,
+              "strategy": "增强型综合决策者",
+              "red_balls": [
+                "04",
+                "07",
+                "14",
+                "21",
+                "29",
+                "32"
+              ],
+              "blue_ball": "04",
+              "description": "04综合52.4；奇偶3:3、大小3:3；和值107；蓝球04综合59.6",
+              "hit_result": {
+                "red_hits": [
+                  "04",
+                  "14"
+                ],
+                "red_hit_count": 2,
+                "blue_hit": false,
+                "total_hits": 2
+              }
+            }
+          ],
+          "target_period": "26115",
+          "prediction_date": "2026-10-08",
+          "best_group": 1,
+          "best_hit_count": 2
+        }
+      ],
+      "generated_at": "2026-10-07T05:03:18+00:00",
+      "generator_version": "4.1",
+      "input_fingerprint": "179957875e497c6cfd1b6e72fca520840cb0b5f08fb024958b7c5204f46333b9"
+    },
+    {
       "prediction_date": "2026-10-01",
       "target_period": "26114",
       "actual_result": {
