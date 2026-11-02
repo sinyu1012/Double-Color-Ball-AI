@@ -19,7 +19,7 @@ API_KEY = os.environ.get("AI_API_KEY")
 MODELS = [
     {"id": "gpt-4o", "name": "GPT-4o", "model_id": "gpt-4o"},
     {"id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6", "model_id": "claude-sonnet-4-6"},
-    {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "model_id": "gemini-2.5-flash", "timeout": 180.0},
+    {"id": "gemini-3.6-flash", "name": "Gemini 3.6 Flash", "model_id": "gemini-3.6-flash", "timeout": 180.0},
     {"id": "deepseek-chat", "name": "DeepSeek Chat", "model_id": "deepseek-chat"},
 ]
 SCRIPT_DIR = Path(__file__).resolve().parent

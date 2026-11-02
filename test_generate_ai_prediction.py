@@ -512,7 +512,7 @@ class OfflineIntegrationTests(unittest.TestCase):
         def respond(**kwargs):
             self.assertIn(lottery["next_draw"]["next_period"], kwargs["messages"][1]["content"])
             self.assertIn("双色球候选组合选择 v4.0", kwargs["messages"][1]["content"])
-            self.assertEqual(kwargs["timeout"], 180.0 if kwargs["model"] == "gemini-2.5-flash" else 60.0)
+            self.assertEqual(kwargs["timeout"], 180.0 if kwargs["model"] == "gemini-3.6-flash" else 60.0)
             payload = json.dumps({"selections": choices})
             return SimpleNamespace(model=kwargs["model"] + "-resolved", choices=[
                 SimpleNamespace(message=SimpleNamespace(content="```json\n" + payload + "\n```")),
