@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://double-color-ball-ai.vercel.app/sitemap.xml
